@@ -302,5 +302,21 @@ export const workExperiences = [
     icon: '/assets/Infinite.svg',
     animation: 'clapping',
   },
+
+  {
+    id: 2,
+    name: 'BrandupX',
+    pos: 'Data Science Intern',
+    duration: 'May 2023 - July 2023 ',
+    title: `
+<ul>
+<li>• Performed exploratory data analysis (EDA) on a 60,000+ row dataset using Python (pandas, NumPy, Matplotlib, Seaborn) and SQL, uncovering trends and actionable insights.</li>
+<li>• Built predictive models using scikit-learn to identify high-value customer segments and geographic patterns, contributing to a 25% revenue increase.</li>
+<li>• Assisted senior analysts in creating data-driven dashboards and reports to support strategic decision-making.</li>
+</ul>
+    `,
+    icon: '/assets/brandupx.jpeg',
+    animation: 'Victory',
+  },
 ];
 
