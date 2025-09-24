@@ -32,7 +32,7 @@ const About = () => {
           viewport={{ once: true }}
         >
           <div className="grid-container">
-            <img src="assets/grid5.png" alt="grid-1" className="w-full sm:h-[276px] h-fit object-contain" />
+            <img src="assets/abhay.jpeg" alt="grid-1" className="w-full sm:h-[276px] h-fit object-contain" />
 
             <div>
               <p className="grid-headtext">Hi, I'm Devanshu Bhargava</p>
