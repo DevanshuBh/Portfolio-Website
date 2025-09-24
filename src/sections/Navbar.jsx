@@ -11,6 +11,23 @@ const NavItems = ({ onClick = () => {} }) => (
         </a>
       </li>
     ))}
+    <li className="nav-li">
+      <a href="https://medium.com/@bhargavadevanshu10" target="_blank" rel="noopener noreferrer" className="nav-li_a flex items-center gap-2">
+        <img src="/assets/medium.png" alt="Medium" className="w-6 h-6 object-contain bg-white rounded" style={{filter: 'invert(1)'}} />
+        Blog
+      </a>
+    </li>
+    <li className="nav-li flex gap-3 items-center">
+      <a href="https://github.com/DevanshuBh" target="_blank" rel="noopener noreferrer" className="w-8 h-8 hover:opacity-80 transition-opacity">
+        <img src="/assets/github.svg" alt="GitHub" className="w-full h-full" />
+      </a>
+      <a href="https://leetcode.com/u/devanshu101302/" target="_blank" rel="noopener noreferrer" className="w-8 h-8 hover:opacity-80 transition-opacity">
+        <img src="/assets/leetcode.svg" alt="LeetCode" className="w-full h-full" />
+      </a>
+      <a href="https://www.kaggle.com/devanshubhargava1013" target="_blank" rel="noopener noreferrer" className="w-8 h-8 hover:opacity-80 transition-opacity">
+        <img src="/assets/kaggle.svg" alt="Kaggle" className="w-full h-full" />
+      </a>
+    </li>
   </ul>
 );
 
@@ -25,7 +42,7 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center py-5 mx-auto c-space">
           <a href="/" className="text-neutral-400 font-bold text-xl hover:text-white transition-colors">
-            Adrian
+            Devanshu Bhargava
           </a>
 
           <button

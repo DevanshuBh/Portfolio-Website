@@ -1,0 +1,535 @@
+{
+  "accessors": [
+    {
+      "bufferView": 2,
+      "componentType": 5126,
+      "count": 507,
+      "max": [
+        0.037690844386816025,
+        0.008039579726755619,
+        0.001261174795217812
+      ],
+      "min": [
+        -0.039695024490356445,
+        -0.009379907511174679,
+        -0.0012611752608790994
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 6084,
+      "componentType": 5126,
+      "count": 507,
+      "max": [
+        0.9995165467262268,
+        0.9996687769889832,
+        1.0
+      ],
+      "min": [
+        -0.9975042939186096,
+        -0.9999968409538269,
+        -1.0
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 1,
+      "componentType": 5126,
+      "count": 507,
+      "max": [
+        0.6796171069145203,
+        0.3372853696346283
+      ],
+      "min": [
+        -0.03074345365166664,
+        0.15680351853370667
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "componentType": 5125,
+      "count": 852,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 12168,
+      "componentType": 5126,
+      "count": 11045,
+      "max": [
+        0.03824930265545845,
+        0.012954212725162506,
+        0.0012612007558345795
+      ],
+      "min": [
+        -0.03958917781710625,
+        -0.01356961764395237,
+        -0.001261149300262332
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 144708,
+      "componentType": 5126,
+      "count": 11045,
+      "max": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "min": [
+        -1.0,
+        -1.0,
+        -1.0
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 4056,
+      "componentType": 5126,
+      "count": 11045,
+      "max": [
+        0.9547654390335083,
+        0.9914225339889526
+      ],
+      "min": [
+        0.04773539677262306,
+        0.49278560280799866
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "byteOffset": 3408,
+      "componentType": 5125,
+      "count": 16728,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 277248,
+      "componentType": 5126,
+      "count": 516,
+      "max": [
+        0.007406763732433319,
+        0.006612356752157211,
+        0.001261174795217812
+      ],
+      "min": [
+        -0.00848245620727539,
+        -0.009046941064298153,
+        -0.0012611752608790994
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 283440,
+      "componentType": 5126,
+      "count": 516,
+      "max": [
+        0.999351441860199,
+        0.999988317489624,
+        1.0
+      ],
+      "min": [
+        -0.9999980330467224,
+        -0.9998109936714172,
+        -1.0
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 92416,
+      "componentType": 5126,
+      "count": 516,
+      "max": [
+        0.7986955046653748,
+        0.44044169783592224
+      ],
+      "min": [
+        0.5173773169517517,
+        0.19470268487930298
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "byteOffset": 70320,
+      "componentType": 5125,
+      "count": 852,
+      "type": "SCALAR"
+    }
+  ],
+  "asset": {
+    "extras": {
+      "author": "Youssef_0356 (https://sketchfab.com/nejiyoussef081)",
+      "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+      "source": "https://sketchfab.com/3d-models/aws-logo-8aefa880ecee48778c4b3725b62c0649",
+      "title": "AWS Logo"
+    },
+    "generator": "Sketchfab-16.53.0",
+    "version": "2.0"
+  },
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteLength": 73728,
+      "name": "floatBufferViews",
+      "target": 34963
+    },
+    {
+      "buffer": 0,
+      "byteLength": 96544,
+      "byteOffset": 73728,
+      "byteStride": 8,
+      "name": "floatBufferViews",
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 289632,
+      "byteOffset": 170272,
+      "byteStride": 12,
+      "name": "floatBufferViews",
+      "target": 34962
+    }
+  ],
+  "buffers": [
+    {
+      "byteLength": 459904,
+      "uri": "scene.bin"
+    }
+  ],
+  "extensionsRequired": [
+    "KHR_materials_pbrSpecularGlossiness"
+  ],
+  "extensionsUsed": [
+    "KHR_materials_pbrSpecularGlossiness"
+  ],
+  "materials": [
+    {
+      "doubleSided": true,
+      "extensions": {
+        "KHR_materials_pbrSpecularGlossiness": {
+          "diffuseFactor": [
+            0.9386719999999998,
+            0.3185549999999997,
+            0.011612499999999974,
+            1.0
+          ],
+          "glossinessFactor": 0.09575527891124684,
+          "specularFactor": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "name": "Material.001"
+    },
+    {
+      "doubleSided": true,
+      "extensions": {
+        "KHR_materials_pbrSpecularGlossiness": {
+          "diffuseFactor": [
+            0.018499899999999996,
+            0.028426399999999987,
+            0.048171700000000005,
+            1.0
+          ],
+          "glossinessFactor": 0.006203218560246701,
+          "specularFactor": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "name": "Material.003"
+    }
+  ],
+  "meshes": [
+    {
+      "name": "ArrowBody_Material.001_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 1,
+            "POSITION": 0,
+            "TEXCOORD_0": 2
+          },
+          "indices": 3,
+          "material": 0,
+          "mode": 4
+        }
+      ]
+    },
+    {
+      "name": "AWS_Material.003_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 5,
+            "POSITION": 4,
+            "TEXCOORD_0": 6
+          },
+          "indices": 7,
+          "material": 1,
+          "mode": 4
+        }
+      ]
+    },
+    {
+      "name": "ArrowHead_Material.001_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 9,
+            "POSITION": 8,
+            "TEXCOORD_0": 10
+          },
+          "indices": 11,
+          "material": 0,
+          "mode": 4
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "children": [
+        1
+      ],
+      "matrix": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        2.220446049250313e-16,
+        -1.0,
+        0.0,
+        0.0,
+        1.0,
+        2.220446049250313e-16,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "name": "Sketchfab_model"
+    },
+    {
+      "children": [
+        2
+      ],
+      "matrix": [
+        0.009999999776482582,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.009999999776482582,
+        0.0,
+        0.0,
+        -0.009999999776482582,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "name": "AWS model.fbx"
+    },
+    {
+      "children": [
+        3,
+        5,
+        7,
+        9,
+        12
+      ],
+      "name": "RootNode"
+    },
+    {
+      "children": [
+        4
+      ],
+      "matrix": [
+        16067.4609375,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        16067.460937499984,
+        0.0007023310238210567,
+        0.0,
+        0.0,
+        -0.0007023310238210567,
+        16067.460937499984,
+        0.0,
+        -13.075542449951172,
+        155.69842529296875,
+        -20.26386833190918,
+        1.0
+      ],
+      "name": "ArrowBody"
+    },
+    {
+      "mesh": 0,
+      "name": "ArrowBody_Material.001_0"
+    },
+    {
+      "children": [
+        6
+      ],
+      "matrix": [
+        16067.4609375,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        16067.460937499984,
+        0.0007023310238210567,
+        0.0,
+        0.0,
+        -0.0007023310238210567,
+        16067.460937499984,
+        0.0,
+        41.537864685058594,
+        612.0103759765625,
+        -20.264266967773438,
+        1.0
+      ],
+      "name": "AWS"
+    },
+    {
+      "mesh": 1,
+      "name": "AWS_Material.003_0"
+    },
+    {
+      "children": [
+        8
+      ],
+      "matrix": [
+        16067.4609375,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        16067.460937499984,
+        0.0007023310238210567,
+        0.0,
+        0.0,
+        -0.0007023310238210567,
+        16067.460937499984,
+        0.0,
+        593.3041381835938,
+        205.67677307128906,
+        -20.263866424560547,
+        1.0
+      ],
+      "name": "ArrowHead"
+    },
+    {
+      "mesh": 2,
+      "name": "ArrowHead_Material.001_0"
+    },
+    {
+      "children": [
+        10
+      ],
+      "matrix": [
+        57.010143911533326,
+        -64.55899418329271,
+        -50.81318491521505,
+        0.0,
+        64.55899505774954,
+        -3.0500642329288397,
+        76.30749154118799,
+        0.0,
+        -50.81317992746483,
+        -76.30748645921157,
+        39.93978880837353,
+        0.0,
+        41.537864685058594,
+        612.0103759765625,
+        1127.864013671875,
+        1.0
+      ],
+      "name": "Sun"
+    },
+    {
+      "children": [
+        11
+      ],
+      "matrix": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        2.220446049250313e-16,
+        1.0,
+        0.0,
+        0.0,
+        -1.0,
+        2.220446049250313e-16,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "name": "Object_10"
+    },
+    {
+      "name": "Object_11"
+    },
+    {
+      "children": [
+        13
+      ],
+      "matrix": [
+        44.60076829027577,
+        5.972469026141397,
+        -89.30342998747517,
+        0.0,
+        -2.6684912309156883,
+        99.82150399610806,
+        5.343177543704919,
+        0.0,
+        89.46311925543819,
+        -4.4037469734365275e-05,
+        44.680518877990444,
+        0.0,
+        -1043.4644775390625,
+        290.9631042480469,
+        2109.88720703125,
+        1.0
+      ],
+      "name": "Camera"
+    },
+    {
+      "name": "Object_13"
+    }
+  ],
+  "scene": 0,
+  "scenes": [
+    {
+      "name": "Sketchfab_Scene",
+      "nodes": [
+        0
+      ]
+    }
+  ]
+}

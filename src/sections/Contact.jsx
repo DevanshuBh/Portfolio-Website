@@ -1,5 +1,6 @@
 import emailjs from '@emailjs/browser';
 import { useRef, useState } from 'react';
+import { motion } from 'framer-motion';
 
 import useAlert from '../hooks/useAlert.js';
 import Alert from '../components/Alert.jsx';
@@ -22,16 +23,19 @@ const Contact = () => {
 
     emailjs
       .send(
-        import.meta.env.VITE_APP_EMAILJS_SERVICE_ID,
-        import.meta.env.VITE_APP_EMAILJS_TEMPLATE_ID,
+        'service_0vfhxig',
+        'template_hxrfnyh',
         {
           from_name: form.name,
-          to_name: 'JavaScript Mastery',
+          to_name: 'Devanshu Bhargava',
           from_email: form.email,
-          to_email: 'sujata@jsmastery.pro',
-          message: form.message,
+          to_email: 'bhargavadevanshu10@gmail.com',
+          message: `Message:\n${form.message}`,
+          sender_name: form.name,
+          sender_email: form.email,
+          user_message: form.message,
         },
-        import.meta.env.VITE_APP_EMAILJS_PUBLIC_KEY,
+        'kyAphlDF60C_kHheU',
       )
       .then(
         () => {
@@ -68,14 +72,25 @@ const Contact = () => {
     <section className="c-space my-20" id="contact">
       {alert.show && <Alert {...alert} />}
 
-      <div className="relative min-h-screen flex items-center justify-center flex-col">
+      <motion.div 
+        className="relative min-h-screen flex items-center justify-center flex-col"
+        initial={{ opacity: 0, y: 50 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        viewport={{ once: true }}
+      >
         <img src="/assets/terminal.png" alt="terminal-bg" className="absolute inset-0 min-h-screen" />
 
-        <div className="contact-container">
+        <motion.div 
+          className="contact-container"
+          initial={{ opacity: 0, scale: 0.9 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          viewport={{ once: true }}
+        >
           <h3 className="head-text">Let's talk</h3>
           <p className="text-lg text-white-600 mt-3">
-            Whether you’re looking to build a new website, improve your existing platform, or bring a unique project to
-            life, I’m here to help.
+            If you liked what you saw so far , Wants to hire me or just want to say hi, my inbox is always open. Thanks for stopping by!
           </p>
 
           <form ref={formRef} onSubmit={handleSubmit} className="mt-12 flex flex-col space-y-7">
@@ -124,8 +139,8 @@ const Contact = () => {
               <img src="/assets/arrow-up.png" alt="arrow-up" className="field-btn_arrow" />
             </button>
           </form>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </section>
   );
 };

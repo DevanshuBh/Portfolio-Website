@@ -257,32 +257,50 @@ export const calculateSizes = (isSmall, isMobile, isTablet) => {
   };
 };
 
-export const workExperiences = [
+export const certificates = [
   {
     id: 1,
-    name: 'Framer',
-    pos: 'Lead Web Developer',
-    duration: '2022 - Present',
-    title: "Framer serves as my go-to tool for creating interactive prototypes. I use it to bring designs to  life, allowing stakeholders to experience the user flow and interactions before development.",
-    icon: '/assets/framer.svg',
-    animation: 'victory',
+    title: 'Google Data Analytics Professional Certificate',
+    issuer: 'Google',
+    date: '2023',
+    image: '/assets/google1.png',
+    credentialUrl: 'https://www.credly.com/badges/be9c019e-8f7e-4cff-b5fd-bb0e84c7f606/public_url'
   },
   {
     id: 2,
-    name: 'Figma',
-    pos: 'Web Developer',
-    duration: '2020 - 2022',
-    title: "Figma is my collaborative design platform of choice. I utilize it to work seamlessly with team members and clients, facilitating real-time feedback and design iterations. Its cloud-based.",
-    icon: '/assets/figma.svg',
+    title: 'Google Advance Data Analytics Professional Certificate',
+    issuer: 'Google',
+    date: '2024',
+    image: '/assets/google2.png',
+    credentialUrl: 'https://www.credly.com/badges/80b925ac-e4fe-42a9-b3ed-41314c6584bb/public_url'
+  },
+  /*{
+    id: 3,
+    title: 'Microsoft Azure Fundamentals',
+    issuer: 'Microsoft',
+    date: '2023',
+    image: '/assets/certificates/azure-cert.png',
+    credentialUrl: 'https://www.credly.com/badges/your-azure-badge'
+  }*/
+];
+
+export const workExperiences = [
+  {
+    id: 1,
+    name: 'Infinite Computer Solutions',
+    pos: 'Associate Software Engineer',
+    duration: 'Oct 2024 - Present',
+    title: `
+<ul>
+<li>• Migrated <strong>6</strong> backend services from Java <strong>11</strong> to <strong>21</strong> using Spring Boot <strong>3</strong>, improving API performance by <strong>~15%</strong> and reducing technical debt by <strong>~20%</strong></li>
+<li>• Designed <strong>5+</strong> AWS data pipelines (EC2, S3, RDS) to process <strong>~250–300 GB</strong> of data monthly, improving efficiency by <strong>~22%</strong> and ensuring <strong>>99%</strong> data availability</li>
+<li>• Developed a Python-based microservice with an ML model trained on <strong>~2M+</strong> user records, which boosted churn prediction accuracy by <strong>~18%</strong></li>
+<li>• Contributed to Docker and Kubernetes (EKS) deployments that enhanced scalability and reduced downtime by <strong>~30%</strong></li>
+<li>• Implemented CI/CD automation with GitHub Actions and AWS CodePipeline, reducing release cycles from <strong>2</strong> weeks to <strong>~9</strong> days (<strong>~35%</strong> faster)</li>
+</ul>
+    `,
+    icon: '/assets/Infinite.svg',
     animation: 'clapping',
   },
-  {
-    id: 3,
-    name: 'Notion',
-    pos: 'Junior Web Developer',
-    duration: '2019 - 2020',
-    title: "Notion helps me keep my projects organized. I use it for project management, task tracking, and as a central hub for documentation, ensuring that everything from design notes to.",
-    icon: '/assets/notion.svg',
-    animation: 'salute',
-  },
 ];
+

@@ -1,0 +1,11 @@
+Model Information:
+* title:	Hands-On Machine Learning (3D Book Model)
+* source:	https://sketchfab.com/3d-models/hands-on-machine-learning-3d-book-model-f084779aa5364ffc87671300e47e6a1f
+* author:	Abinash Bhatta (https://sketchfab.com/abinash889)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Hands-On Machine Learning (3D Book Model)" (https://sketchfab.com/3d-models/hands-on-machine-learning-3d-book-model-f084779aa5364ffc87671300e47e6a1f) by Abinash Bhatta (https://sketchfab.com/abinash889) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

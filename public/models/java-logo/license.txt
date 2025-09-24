@@ -1,0 +1,11 @@
+Model Information:
+* title:	Java programming language logo
+* source:	https://sketchfab.com/3d-models/java-programming-language-logo-c77fd62482b74749a3a2ffbd74909a82
+* author:	demo31528 (https://sketchfab.com/demo31528)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Java programming language logo" (https://sketchfab.com/3d-models/java-programming-language-logo-c77fd62482b74749a3a2ffbd74909a82) by demo31528 (https://sketchfab.com/demo31528) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
