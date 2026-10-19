@@ -18,6 +18,9 @@ const NavItems = ({ onClick = () => {} }) => (
       </a>
     </li>
     <li className="nav-li flex gap-3 items-center">
+      <a href="https://www.linkedin.com/in/devanshu-bhargava-68b594258/" target="_blank" rel="noopener noreferrer" className="w-8 h-8 hover:opacity-80 transition-opacity">
+        <img src="/assets/linkedin.svg" alt="LinkedIn" className="w-full h-full" />
+      </a>
       <a href="https://github.com/DevanshuBh" target="_blank" rel="noopener noreferrer" className="w-8 h-8 hover:opacity-80 transition-opacity">
         <img src="/assets/github.svg" alt="GitHub" className="w-full h-full" />
       </a>

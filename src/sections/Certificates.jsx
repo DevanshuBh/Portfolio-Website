@@ -10,7 +10,7 @@ const Certificates = () => {
         transition={{ duration: 0.8 }}
         viewport={{ once: true }}
       >
-        <p className="head-text">Professional Certificates</p>
+        <p className="head-text">Certificates & Achievements</p>
         
         <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-8 mt-12">
           {certificates.map((cert, index) => (
@@ -27,21 +27,21 @@ const Certificates = () => {
                 <img 
                   src={cert.image} 
                   alt={cert.title}
-                  className="w-full h-full object-cover"
+                  className={`w-full h-full ${cert.imageFit === 'contain' ? 'object-contain p-6' : 'object-cover'}`}
                 />
               </div>
               
               <h3 className="text-white font-semibold text-lg mb-2">{cert.title}</h3>
               <p className="text-gray-400 text-sm mb-1">{cert.issuer}</p>
-              <p className="text-gray-500 text-sm mb-4">{cert.date}</p>
+              {cert.date && <p className="text-gray-500 text-sm">{cert.date}</p>}
               
               <a 
                 href={cert.credentialUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-md text-sm hover:opacity-80 transition-opacity"
+                className="inline-block mt-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-md text-sm hover:opacity-80 transition-opacity"
               >
-                View Credential
+                Verify
               </a>
             </motion.div>
           ))}
