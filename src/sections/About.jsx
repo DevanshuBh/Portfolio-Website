@@ -36,11 +36,11 @@ const About = () => {
 
             <div>
               <p className="grid-headtext">Hi, I'm Devanshu Bhargava</p>
-              <p className="grid-subtext">I am a Full Stack Engineer skilled in Java, Spring Boot, Python(Numpy , Pandas , Scikit-Learn) , React.
-I bring advanced knowledge of Data Science and Machine Learning to build intelligent solutions.
-With a strong interest in Cloud and DevOps, I focus on scalability and reliability.
-I am dedicated, hardworking, and passionate about solving complex problems.
-                
+              <p className="grid-subtext">
+                I am a backend-focused Software Engineer with 2+ years of experience building event-driven systems in
+                Java, Spring Boot and Apache Kafka on an enterprise payment fraud detection platform. I build for
+                correctness under failure (idempotency, outbox, DLQs, circuit breakers, backpressure), prove it with
+                integration, load and chaos tests, and deploy on AWS with Terraform.
               </p>
             </div>
           </div>
@@ -60,28 +60,28 @@ I am dedicated, hardworking, and passionate about solving complex problems.
               <p className="grid-headtext">Tech Stack</p>
               <div className="grid-subtext space-y-4">
                 <div>
-                  <h4 className="text-white font-semibold mb-2">Programming Languages</h4>
-                  <p className="text-gray-300">C#, Java, Python, R, SQL, JavaScript</p>
+                  <h4 className="text-white font-semibold mb-2">Languages</h4>
+                  <p className="text-gray-300">Java 21, Python, TypeScript, JavaScript, SQL</p>
                 </div>
                 <div>
-                  <h4 className="text-white font-semibold mb-2">Frontend Development</h4>
-                  <p className="text-gray-300">React.js, Redux, Tailwind CSS, React Router, Axios</p>
+                  <h4 className="text-white font-semibold mb-2">Backend & Distributed Systems</h4>
+                  <p className="text-gray-300">Spring Boot, FastAPI, gRPC, REST, Microservices, Kafka, Redis, Celery, Resilience4j</p>
                 </div>
                 <div>
-                  <h4 className="text-white font-semibold mb-2">Backend Development</h4>
-                  <p className="text-gray-300">Spring Boot, Spring MVC, Spring Data JPA, Hibernate, Spring Security</p>
+                  <h4 className="text-white font-semibold mb-2">Databases</h4>
+                  <p className="text-gray-300">PostgreSQL, TimescaleDB, pgvector, Neo4j</p>
                 </div>
                 <div>
-                  <h4 className="text-white font-semibold mb-2">Database Technologies</h4>
-                  <p className="text-gray-300">MySQL, PostgreSQL, MongoDB</p>
+                  <h4 className="text-white font-semibold mb-2">Generative AI & ML</h4>
+                  <p className="text-gray-300">RAG, LangGraph, LangChain, Amazon Bedrock, Ollama, scikit-learn, MLflow</p>
                 </div>
                 <div>
                   <h4 className="text-white font-semibold mb-2">Cloud & DevOps</h4>
-                  <p className="text-gray-300">AWS (EC2, S3, RDS, IAM), Docker, Kubernetes, GitHub Actions, Nginx</p>
+                  <p className="text-gray-300">AWS (ECS, RDS, ElastiCache, S3, Cognito), Terraform, Docker, Kubernetes, GitHub Actions</p>
                 </div>
                 <div>
-                  <h4 className="text-white font-semibold mb-2">Machine Learning & AI</h4>
-                  <p className="text-gray-300">Numpy , Pandas , Scikit-learn  , Scipy , Seaborn  , Linear/Logistic Regression, Decision Trees, Random Forests, K-means, XGBoost</p>
+                  <h4 className="text-white font-semibold mb-2">Frontend & Testing</h4>
+                  <p className="text-gray-300">React, Next.js, Testcontainers, JUnit 5, pytest, k6, OpenTelemetry, Prometheus, Grafana</p>
                 </div>
               </div>
             </div>
@@ -104,7 +104,7 @@ I am dedicated, hardworking, and passionate about solving complex problems.
             <div>
               <p className="grid-headtext">Resume</p>
               <p className="grid-subtext">Download my resume to learn more about my experience and skills.</p>
-              <a href="/devnashu bahrgava new resume.pdf" download="Devanshu_Bhargava_Resume.pdf">
+              <a href="/Devanshu_Bhargava_Resume.pdf" download="Devanshu_Bhargava_Resume.pdf">
                 <Button name="Download my resume" isBeam containerClass="w-full mt-10" />
               </a>
             </div>

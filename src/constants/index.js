@@ -58,126 +58,13 @@ export const clientReviews = [
 
 export const myProjects = [
   {
-    title: 'Podcastr - AI Podcast Platform',
-    desc: 'Podcastr is a revolutionary Software-as-a-Service platform that transforms the way podcasts are created. With advanced AI-powered features like text-to-multiple-voices functionality, it allows creators to generate diverse voiceovers from a single text input.',
+    title: 'NEXUS - Real-Time Fleet Tracking Platform',
+    desc: 'A real-time fleet tracking platform with a hand-built ingestion pipeline: plain kafka-clients consumers commit offsets only after the database commit, and GPS events are loaded into TimescaleDB via COPY with idempotent writes. Load-tested with k6 on a 50K-vehicle model.',
     subdesc:
-      'Built as a unique Software-as-a-Service app with Next.js 14, Tailwind CSS, TypeScript, Framer Motion and Convex, Podcastr is designed for optimal performance and scalability.',
-    href: 'https://www.youtube.com/watch?v=zfAb95tJvZQ',
-    texture: '/textures/project/project1.mp4',
-    logo: '/assets/project-logo1.png',
-    logoStyle: {
-      backgroundColor: '#2A1816',
-      border: '0.2px solid #36201D',
-      boxShadow: '0px 0px 60px 0px #AA3C304D',
-    },
-    spotlight: '/assets/spotlight1.png',
-    tags: [
-      {
-        id: 1,
-        name: 'React.js',
-        path: '/assets/react.svg',
-      },
-      {
-        id: 2,
-        name: 'TailwindCSS',
-        path: 'assets/tailwindcss.png',
-      },
-      {
-        id: 3,
-        name: 'TypeScript',
-        path: '/assets/typescript.png',
-      },
-      {
-        id: 4,
-        name: 'Framer Motion',
-        path: '/assets/framer.png',
-      },
-    ],
-  },
-  {
-    title: 'LiveDoc - Real-Time Google Docs Clone',
-    desc: 'LiveDoc is a powerful collaborative app that elevates the capabilities of real-time document editing. As an enhanced version of Google Docs, It supports millions of collaborators simultaneously, ensuring that every change is captured instantly and accurately.',
-    subdesc:
-      'With LiveDoc, users can experience the future of collaboration, where multiple contributors work together in real time without any lag, by using Next.js and Liveblocks newest features.',
-    href: 'https://www.youtube.com/watch?v=y5vE8y_f_OM',
-    texture: '/textures/project/project2.mp4',
-    logo: '/assets/project-logo2.png',
-    logoStyle: {
-      backgroundColor: '#13202F',
-      border: '0.2px solid #17293E',
-      boxShadow: '0px 0px 60px 0px #2F6DB54D',
-    },
-    spotlight: '/assets/spotlight2.png',
-    tags: [
-      {
-        id: 1,
-        name: 'React.js',
-        path: '/assets/react.svg',
-      },
-      {
-        id: 2,
-        name: 'TailwindCSS',
-        path: 'assets/tailwindcss.png',
-      },
-      {
-        id: 3,
-        name: 'TypeScript',
-        path: '/assets/typescript.png',
-      },
-      {
-        id: 4,
-        name: 'Framer Motion',
-        path: '/assets/framer.png',
-      },
-    ],
-  },
-  {
-    title: 'CarePulse - Health Management System',
-    desc: 'An innovative healthcare platform designed to streamline essential medical processes. It simplifies patient registration, appointment scheduling, and medical record management, providing a seamless experience for both healthcare providers and patients.',
-    subdesc:
-      'With a focus on efficiency, CarePulse integrantes complex forms and SMS notifications, by using Next.js, Appwrite, Twillio and Sentry that enhance operational workflows.',
-    href: 'https://www.youtube.com/watch?v=lEflo_sc82g',
-    texture: '/textures/project/project3.mp4',
-    logo: '/assets/project-logo3.png',
-    logoStyle: {
-      backgroundColor: '#60f5a1',
-      background:
-        'linear-gradient(0deg, #60F5A150, #60F5A150), linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(208, 213, 221, 0.8) 100%)',
-      border: '0.2px solid rgba(208, 213, 221, 1)',
-      boxShadow: '0px 0px 60px 0px rgba(35, 131, 96, 0.3)',
-    },
-    spotlight: '/assets/spotlight3.png',
-    tags: [
-      {
-        id: 1,
-        name: 'React.js',
-        path: '/assets/react.svg',
-      },
-      {
-        id: 2,
-        name: 'TailwindCSS',
-        path: 'assets/tailwindcss.png',
-      },
-      {
-        id: 3,
-        name: 'TypeScript',
-        path: '/assets/typescript.png',
-      },
-      {
-        id: 4,
-        name: 'Framer Motion',
-        path: '/assets/framer.png',
-      },
-    ],
-  },
-  {
-    title: 'Horizon - Online Banking Platform',
-    desc: 'Horizon is a comprehensive online banking platform that offers users a centralized finance management dashboard. It allows users to connect multiple bank accounts, monitor real-time transactions, and seamlessly transfer money to other users.',
-    subdesc:
-      'Built with Next.js 14 Appwrite, Dwolla and Plaid, Horizon ensures a smooth and secure banking experience, tailored to meet the needs of modern consumers.',
-    href: 'https://www.youtube.com/watch?v=PuOVqP_cjkE',
-    texture: '/textures/project/project4.mp4',
-    logo: '/assets/project-logo4.png',
+      'Fault tolerant by design: DLQ, bisection recovery for bad rows and partition-pause backpressure, with crashes, replays and DB outages covered by Testcontainers and Toxiproxy tests. A Next.js + MapLibre GL live map (Web Workers) is fed by Redis Pub/Sub WebSocket fan-out, deployed on AWS ECS via Terraform with Grafana lag and freshness alerts.',
+    href: 'https://github.com/DevanshuBh',
+    texture: '/textures/project/nexus.png',
+    logo: '/assets/nexus-logo.svg',
     logoStyle: {
       backgroundColor: '#0E1F38',
       border: '0.2px solid #0E2D58',
@@ -185,36 +72,22 @@ export const myProjects = [
     },
     spotlight: '/assets/spotlight4.png',
     tags: [
-      {
-        id: 1,
-        name: 'React.js',
-        path: '/assets/react.svg',
-      },
-      {
-        id: 2,
-        name: 'TailwindCSS',
-        path: 'assets/tailwindcss.png',
-      },
-      {
-        id: 3,
-        name: 'TypeScript',
-        path: '/assets/typescript.png',
-      },
-      {
-        id: 4,
-        name: 'Framer Motion',
-        path: '/assets/framer.png',
-      },
+      { id: 1, name: 'Java 21' },
+      { id: 2, name: 'Kafka' },
+      { id: 3, name: 'TimescaleDB' },
+      { id: 4, name: 'Redis' },
+      { id: 5, name: 'Next.js' },
+      { id: 6, name: 'AWS' },
     ],
   },
   {
-    title: 'Imaginify - AI Photo Manipulation App',
-    desc: 'Imaginify is a groundbreaking Software-as-a-Service application that empowers users to create stunning photo manipulations using AI technology. With features like AI-driven image editing, a payments system, and a credits-based model.',
+    title: 'CORTEX - Multi-Tenant GraphRAG Research Platform',
+    desc: 'A multi-tenant research platform with hybrid retrieval: Postgres full-text + pgvector HNSW, Reciprocal Rank Fusion, cross-encoder reranking and Neo4j GraphRAG. Recall@k and MRR are evaluated nightly in CI on a hand-labelled golden set.',
     subdesc:
-      'Built with Next.js 14, Cloudinary AI, Clerk, and Stripe, Imaginify combines cutting-edge technology with a user-centric approach. It can be turned into a side income or even a full-fledged business.',
-    href: 'https://www.youtube.com/watch?v=Ahwoks_dawU',
-    texture: '/textures/project/project5.mp4',
-    logo: '/assets/project-logo5.png',
+      'A LangGraph supervisor orchestrates Researcher, Analyst and Coder agents with a loop guard and token budgets, cost-aware Ollama/Bedrock routing and sandboxed code execution. Tenants are isolated with PostgreSQL Row-Level Security, and answers stream over SSE from Celery workers to a Next.js UI with citation drill-down.',
+    href: 'https://github.com/DevanshuBh',
+    texture: '/textures/project/cortex.png',
+    logo: '/assets/cortex-logo.svg',
     logoStyle: {
       backgroundColor: '#1C1A43',
       border: '0.2px solid #252262',
@@ -222,26 +95,11 @@ export const myProjects = [
     },
     spotlight: '/assets/spotlight5.png',
     tags: [
-      {
-        id: 1,
-        name: 'React.js',
-        path: '/assets/react.svg',
-      },
-      {
-        id: 2,
-        name: 'TailwindCSS',
-        path: 'assets/tailwindcss.png',
-      },
-      {
-        id: 3,
-        name: 'TypeScript',
-        path: '/assets/typescript.png',
-      },
-      {
-        id: 4,
-        name: 'Framer Motion',
-        path: '/assets/framer.png',
-      },
+      { id: 1, name: 'Python' },
+      { id: 2, name: 'LangGraph' },
+      { id: 3, name: 'pgvector' },
+      { id: 4, name: 'Neo4j' },
+      { id: 5, name: 'Bedrock' },
     ],
   },
 ];
@@ -264,24 +122,24 @@ export const certificates = [
     issuer: 'Google',
     date: '2023',
     image: '/assets/google1.png',
-    credentialUrl: 'https://www.credly.com/badges/be9c019e-8f7e-4cff-b5fd-bb0e84c7f606/public_url'
+    credentialUrl: 'https://coursera.org/share/90caef1c0941f9cfa8eee7cb90a0e69b',
   },
   {
     id: 2,
-    title: 'Google Advance Data Analytics Professional Certificate',
+    title: 'Google Advanced Data Analytics Professional Certificate',
     issuer: 'Google',
     date: '2024',
     image: '/assets/google2.png',
-    credentialUrl: 'https://www.credly.com/badges/80b925ac-e4fe-42a9-b3ed-41314c6584bb/public_url'
+    credentialUrl: 'https://coursera.org/share/cfea4ce4f7aba4d0a5e0a1109822cd28',
   },
-  /*{
+  {
     id: 3,
-    title: 'Microsoft Azure Fundamentals',
-    issuer: 'Microsoft',
-    date: '2023',
-    image: '/assets/certificates/azure-cert.png',
-    credentialUrl: 'https://www.credly.com/badges/your-azure-badge'
-  }*/
+    title: 'Performer of the Month among 200+ employees',
+    issuer: 'Infinite Computer Solutions',
+    image: '/assets/Infinite.svg',
+    imageFit: 'contain',
+    credentialUrl: 'https://drive.google.com/file/d/1bQg3gGqZfvCLeZkRKfXUr5uACjX1tnw1/view?usp=sharing',
+  },
 ];
 
 export const workExperiences = [
@@ -292,31 +150,13 @@ export const workExperiences = [
     duration: 'Oct 2024 - Present',
     title: `
 <ul>
-<li>• Migrated <strong>6</strong> backend services from Java <strong>11</strong> to <strong>21</strong> using Spring Boot <strong>3</strong>, improving API performance by <strong>~15%</strong> and reducing technical debt by <strong>~20%</strong></li>
-<li>• Designed <strong>5+</strong> AWS data pipelines (EC2, S3, RDS) to process <strong>~250–300 GB</strong> of data monthly, improving efficiency by <strong>~22%</strong> and ensuring <strong>>99%</strong> data availability</li>
-<li>• Developed a Python-based microservice with an ML model trained on <strong>~2M+</strong> user records, which boosted churn prediction accuracy by <strong>~18%</strong></li>
-<li>• Contributed to Docker and Kubernetes (EKS) deployments that enhanced scalability and reduced downtime by <strong>~30%</strong></li>
-<li>• Implemented CI/CD automation with GitHub Actions and AWS CodePipeline, reducing release cycles from <strong>2</strong> weeks to <strong>~9</strong> days (<strong>~35%</strong> faster)</li>
+<li>• <strong>Backend Development:</strong> Contribute to backend services of an enterprise <strong>fraud detection platform</strong> processing high-volume payment transactions in a <strong>10+ member</strong> team supporting real-time risk analysis.</li>
+<li>• <strong>Event Streaming Pipeline:</strong> Implemented and maintained <strong>Apache Kafka consumers</strong> ingesting high-frequency payment events, with manual offset handling and retry logic.</li>
+<li>• <strong>Failure Handling &amp; DLQ:</strong> Added a <strong>Dead Letter Queue (DLQ)</strong> for fraud events failing after retry thresholds, improving fault tolerance and debugging of malformed messages.</li>
+<li>• <strong>Database Performance:</strong> Helped resolve a persistence bottleneck with <strong>Kafka consumer batch processing</strong> and <strong>PostgreSQL</strong> bulk inserts, significantly improving write throughput.</li>
 </ul>
     `,
     icon: '/assets/Infinite.svg',
     animation: 'clapping',
   },
-
-  {
-    id: 2,
-    name: 'BrandupX',
-    pos: 'Data Science Intern',
-    duration: 'May 2023 - July 2023 ',
-    title: `
-<ul>
-<li>• Performed exploratory data analysis (EDA) on a 60,000+ row dataset using Python (pandas, NumPy, Matplotlib, Seaborn) and SQL, uncovering trends and actionable insights.</li>
-<li>• Built predictive models using scikit-learn to identify high-value customer segments and geographic patterns, contributing to a 25% revenue increase.</li>
-<li>• Assisted senior analysts in creating data-driven dashboards and reports to support strategic decision-making.</li>
-</ul>
-    `,
-    icon: '/assets/brandupx.jpeg',
-    animation: 'Victory',
-  },
 ];
-
