@@ -13,6 +13,14 @@ const GREETING = [
 
 const QUESTIONS = [
   {
+    q: 'Why should I hire you?',
+    a: [
+      'Because I handle failure better than most people handle Mondays: retries, a DLQ and idempotency keys, so nothing gets processed twice.',
+      'I also ship end to end: Kafka and Spring Boot at the back, React/Next.js at the front, AWS underneath. And 12x write throughput looks great on your dashboards 😉',
+    ],
+    action: { label: "Let's talk", app: 'gmail' },
+  },
+  {
     q: 'What do you do at Infinite?',
     a: [
       "I'm an Associate Software Engineer at Infinite Computer Solutions (Oct 2024 – present), building Spring Boot services for a real-time fleet tracking platform: 50K+ active drivers, 15,000+ GPS events/sec.",
@@ -52,6 +60,13 @@ const QUESTIONS = [
     q: 'How can I reach you?',
     a: [`Email me at ${profile.email} or connect on LinkedIn. My inbox is always open!`],
     action: { label: 'Write me an email', app: 'gmail' },
+  },
+  {
+    q: 'Tell me a joke',
+    a: [
+      'Why did the Kafka consumer go to therapy? Too many unresolved offsets. 🥁',
+      "I'd tell you a UDP joke too, but you might not get it.",
+    ],
   },
 ];
 

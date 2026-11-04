@@ -130,11 +130,32 @@ export const Cell = ({ icon, iconBg, title, subtitle, value, chevron, href, onCl
   return <div className="cell">{content}</div>;
 };
 
-export const Toggle = ({ on = true, label }) => (
-  <span className={`toggle ${on ? 'toggle--on' : ''}`} role="img" aria-label={label ? `${label}: on` : 'on'}>
-    <span className="toggle-knob" />
-  </span>
-);
+// An always-on switch. With `onTry`, tapping it wiggles back to on and calls onTry.
+export const Toggle = ({ on = true, label, onTry }) => {
+  const [nope, setNope] = useState(false);
+  if (!onTry) {
+    return (
+      <span className={`toggle ${on ? 'toggle--on' : ''}`} role="img" aria-label={label ? `${label}: on` : 'on'}>
+        <span className="toggle-knob" />
+      </span>
+    );
+  }
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={on}
+      aria-label={label}
+      className={`toggle ${on ? 'toggle--on' : ''} ${nope ? 'toggle--nope' : ''}`}
+      onClick={() => {
+        setNope(true);
+        onTry();
+      }}
+      onAnimationEnd={() => setNope(false)}>
+      <span className="toggle-knob" />
+    </button>
+  );
+};
 
 export const Chip = ({ children, color }) => (
   <span className="chip" style={color ? { color, background: `${color}22` } : undefined}>

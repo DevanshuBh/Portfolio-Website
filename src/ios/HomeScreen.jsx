@@ -5,12 +5,12 @@ import { experience, profile, projects, skills } from './data.js';
 
 // iPhone layout: two swipeable pages of a 4-column grid.
 const PHONE_PAGES = [
-  [{ widget: 'profile' }, 'about', 'experience', 'projects', 'skills', 'education', 'wallet', 'timeline', 'maps', 'github', 'linkedin', 'kaggle', 'medium', { widget: 'impact' }],
-  [{ widget: 'stack' }, 'leetcode'],
+  [{ widget: 'profile' }, 'about', 'experience', 'projects', 'skills', 'education', 'wallet', 'timeline', 'leetcode', 'github', 'linkedin', 'kaggle', 'medium', { widget: 'impact' }],
+  [{ widget: 'stack' }, { widget: 'forecast' }],
 ];
 // Wide-screen (iPad-style) layout: everything on one 6-column page.
 const DESKTOP_PAGES = [
-  [{ widget: 'profile' }, 'about', 'experience', 'projects', 'skills', 'education', 'wallet', 'timeline', 'maps', { widget: 'impact' }, 'github', 'linkedin', 'kaggle', 'medium', { widget: 'stack' }, 'leetcode'],
+  [{ widget: 'profile' }, 'about', 'experience', 'projects', 'skills', 'education', 'wallet', 'timeline', 'leetcode', { widget: 'impact' }, { widget: 'forecast' }, { widget: 'stack' }, 'github', 'linkedin', 'kaggle', 'medium'],
 ];
 const DOCK = ['phone', 'gmail', 'messages', 'resume'];
 
@@ -142,8 +142,31 @@ const StackWidget = ({ openApp, tab }) => (
   </button>
 );
 
-const WIDGETS = { profile: ProfileWidget, impact: ImpactWidget, stack: StackWidget };
-const WIDGET_LABELS = { profile: 'Profile', impact: 'Impact', stack: 'Tech Stack' };
+// A weather-style widget with a developer forecast. Opens Maps (Noida).
+const ForecastWidget = ({ openApp, tab }) => (
+  <button
+    type="button"
+    className="widget widget--2x2 widget--forecast"
+    onClick={(e) => openApp('maps', null, e.currentTarget)}
+    tabIndex={tab}
+    aria-label="Dev forecast for Noida: 100% chance of shipping. Open Maps">
+    <span className="fw-top">
+      <span className="fw-city">
+        Noida <i>{Icon.pin}</i>
+      </span>
+      <span className="fw-sun" aria-hidden="true">
+        ☀️
+      </span>
+    </span>
+    <span className="fw-temp">100%</span>
+    <span className="fw-cond">Chance of shipping</span>
+    <span className="fw-detail">Bugs: isolated → DLQ</span>
+    <span className="fw-hl">H: 3 chai · L: 0 lag</span>
+  </button>
+);
+
+const WIDGETS = { profile: ProfileWidget, impact: ImpactWidget, stack: StackWidget, forecast: ForecastWidget };
+const WIDGET_LABELS = { profile: 'Profile', impact: 'Impact', stack: 'Tech Stack', forecast: 'Dev Forecast' };
 
 const HomeScreen = ({ apps, openApp, now, active, desktop }) => {
   const PAGES = desktop ? DESKTOP_PAGES : PHONE_PAGES;

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 
 import { Glyph, Icon } from './icons.jsx';
@@ -28,6 +28,16 @@ const notifications = [
 
 const LockScreen = ({ now, onUnlock, openApp, desktop }) => {
   const dragged = useRef(false);
+  const [toast, setToast] = useState(null);
+  const toastTimer = useRef(null);
+  useEffect(() => () => clearTimeout(toastTimer.current), []);
+
+  const quip = (e, text) => {
+    e.stopPropagation();
+    clearTimeout(toastTimer.current);
+    setToast(text);
+    toastTimer.current = setTimeout(() => setToast(null), 2600);
+  };
 
   useEffect(() => {
     const onKey = (e) => {
@@ -105,19 +115,37 @@ const LockScreen = ({ now, onUnlock, openApp, desktop }) => {
       </div>
 
       <div className="lock-bottom">
-        <span className="lock-round" aria-hidden="true">
+        <button
+          type="button"
+          className="lock-round"
+          aria-label="Flashlight"
+          onClick={(e) => quip(e, '🔦 Looking for bugs… 0 found. Swipe up to see why.')}>
           {Icon.flashlight}
-        </span>
+        </button>
         <motion.span
           className="lock-hint"
           animate={{ y: [0, -5, 0], opacity: [0.65, 1, 0.65] }}
           transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}>
           {desktop ? 'Click or swipe up to open' : 'Swipe up to open'}
         </motion.span>
-        <span className="lock-round" aria-hidden="true">
+        <button
+          type="button"
+          className="lock-round"
+          aria-label="Camera"
+          onClick={(e) => quip(e, "📸 Say cheese! (Kidding. No camera needed, just a quick look at my work.)")}>
           {Icon.camera}
-        </span>
+        </button>
       </div>
+      {toast && (
+        <motion.div
+          key={toast}
+          className="lock-toast"
+          role="status"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}>
+          {toast}
+        </motion.div>
+      )}
       <span className="lock-bar" aria-hidden="true" />
     </motion.div>
   );

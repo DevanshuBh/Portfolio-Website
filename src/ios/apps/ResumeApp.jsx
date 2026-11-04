@@ -49,7 +49,7 @@ const ResumeApp = ({ goHome }) => {
       <div className="file-meta">
         <span className="file-meta-icon">{Icon.doc}</span>
         <span>
-          <b>PDF Document</b> · 1 page · 121 KB
+          <b>PDF Document</b> · 1 page · 121 KB · 0 typos (hopefully)
         </span>
       </div>
       <a className="paper" href={profile.resumePdf} target="_blank" rel="noopener noreferrer" aria-label="Open resume PDF">

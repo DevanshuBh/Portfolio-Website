@@ -138,6 +138,7 @@ const GmailApp = ({ goHome, payload }) => {
             Thanks{form.name.trim() ? `, ${form.name.trim().split(/\s+/)[0]}` : ''}! Your email is in my inbox. I&apos;ll get back
             to you at <b>{form.email.trim()}</b>.
           </p>
+          <p className="gm-quip">Delivered with exactly-once semantics. No duplicates, I checked. ✅</p>
           <button type="button" className="big-btn" onClick={reset}>
             Write another email
           </button>

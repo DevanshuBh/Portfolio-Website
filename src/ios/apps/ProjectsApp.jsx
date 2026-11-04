@@ -58,7 +58,7 @@ const ProjectList = ({ onOpen }) => (
         </span>
       </button>
     ))}
-    <p className="list-foot">Tap a project for the full story · Source on GitHub</p>
+    <p className="list-foot">Tap a project for the full story. More are compiling… ☕</p>
   </>
 );
 

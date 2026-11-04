@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { AppShell, Cell, Group, PushStack, Toggle } from '../ui.jsx';
 import { Icon } from '../icons.jsx';
@@ -6,10 +6,31 @@ import { profile, skills } from '../data.js';
 
 const total = skills.reduce((n, g) => n + g.items.length, 0);
 
+// What you get for trying to switch a skill off.
+const QUIPS = [
+  (s) => `Nice try. ${s} is load-bearing.`,
+  (s) => `Can't unsubscribe from ${s}. Offsets already committed.`,
+  (s) => `${s} is idempotent: switching it off changes nothing.`,
+  (s) => `403 Forbidden: ${s} is a core dependency.`,
+  (s) => `${s} stays on. It's already in production.`,
+];
+
 const SkillsApp = ({ goHome, openApp }) => {
   const [selected, setSelected] = useState(null);
   const [query, setQuery] = useState('');
   const group = skills.find((g) => g.id === selected);
+  const [quip, setQuip] = useState(null);
+  const quipIndex = useRef(0);
+  const quipTimer = useRef(null);
+  useEffect(() => () => clearTimeout(quipTimer.current), []);
+
+  const tryOff = (skill) => {
+    const text = QUIPS[quipIndex.current % QUIPS.length](skill);
+    quipIndex.current += 1;
+    clearTimeout(quipTimer.current);
+    setQuip({ text, n: quipIndex.current });
+    quipTimer.current = setTimeout(() => setQuip(null), 2400);
+  };
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -30,11 +51,16 @@ const SkillsApp = ({ goHome, openApp }) => {
             <h1>{group.name}</h1>
             <p>{group.items.length} skills from my resume</p>
           </div>
-          <Group>
+          <Group footer="These can't be switched off. Go on, try.">
             {group.items.map((s) => (
-              <Cell key={s} title={s} accessory={<Toggle label={s} />} />
+              <Cell key={s} title={s} accessory={<Toggle label={s} onTry={() => tryOff(s)} />} />
             ))}
           </Group>
+          {quip && (
+            <div key={quip.n} className="toast toast--quip" role="status">
+              {quip.text}
+            </div>
+          )}
         </AppShell>
       ) : (
         <AppShell title="Skills" onBack={goHome}>

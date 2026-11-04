@@ -399,7 +399,8 @@ svg {
   padding: 2px 10px 0;
 }
 
-.widget-slot--profile {
+.widget-slot--profile,
+.widget-slot--forecast {
   grid-column: span 2;
   grid-row: span 2;
 }
@@ -618,6 +619,68 @@ svg {
   }
 }
 
+/* Dev Forecast (weather-style) widget */
+.widget--forecast {
+  background: linear-gradient(180deg, #2a78e8 0%, #5aa8ff 100%);
+}
+
+.fw-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.fw-city {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.fw-city i {
+  display: flex;
+}
+
+.fw-city svg {
+  width: 11px;
+  height: 11px;
+}
+
+.fw-sun {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.fw-temp {
+  font-size: 40px;
+  font-weight: 300;
+  line-height: 1.05;
+  letter-spacing: -1px;
+}
+
+.fw-cond {
+  margin-top: auto;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.fw-detail,
+.fw-hl {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 11.5px;
+}
+
+.fw-detail {
+  opacity: 0.9;
+}
+
+.fw-hl {
+  font-weight: 600;
+}
+
 /* dots & dock */
 
 .page-dots {
@@ -825,6 +888,28 @@ svg {
   background: rgba(0, 0, 0, 0.28);
   -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
+}
+
+.lock-round:hover {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.lock-toast {
+  position: absolute !important;
+  left: 16px;
+  right: 16px;
+  top: 40%;
+  max-width: 360px;
+  margin: 0 auto;
+  padding: 10px 16px;
+  border-radius: 16px;
+  background: rgba(0, 0, 0, 0.62);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.35;
+  text-align: center;
 }
 
 .lock-round svg {
@@ -1192,6 +1277,40 @@ svg {
 
 .toggle--on .toggle-knob {
   transform: translateX(20px);
+}
+
+button.toggle {
+  cursor: pointer;
+}
+
+.toggle--nope .toggle-knob {
+  animation: nope 0.55s ease;
+}
+
+@keyframes nope {
+  0% {
+    transform: translateX(20px);
+  }
+  35% {
+    transform: translateX(3px);
+  }
+  65% {
+    transform: translateX(23px);
+  }
+  85% {
+    transform: translateX(18px);
+  }
+  100% {
+    transform: translateX(20px);
+  }
+}
+
+.toast--quip {
+  max-width: calc(100% - 32px);
+  white-space: normal;
+  text-align: center;
+  line-height: 1.35;
+  border-radius: 16px;
 }
 
 .chip-row {
@@ -2940,6 +3059,12 @@ a.contact-row:hover,
   color: var(--label2);
 }
 
+.gm-sent .gm-quip {
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--label3);
+}
+
 .gm-sent b {
   color: var(--label);
   overflow-wrap: anywhere;
@@ -3173,6 +3298,23 @@ a.contact-row:hover,
 
 .screen--desktop .iw-value {
   font-size: 32px;
+}
+
+.screen--desktop .fw-city {
+  font-size: 17px;
+}
+
+.screen--desktop .fw-temp {
+  font-size: clamp(40px, 6.4vh, 58px);
+}
+
+.screen--desktop .fw-cond {
+  font-size: 15px;
+}
+
+.screen--desktop .fw-detail,
+.screen--desktop .fw-hl {
+  font-size: 13px;
 }
 
 .screen--desktop .sw-chips {
