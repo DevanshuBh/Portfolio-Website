@@ -76,6 +76,16 @@ const TOPICS = [
     action: { label: 'Open Resume', app: 'resume' },
   },
   {
+    id: 'patterns',
+    weight: 3,
+    keywords: ['pattern*', 'design pattern*', 'saga', 'cqrs', 'strangler', 'idempoten*', 'architecture'],
+    answer: () => [
+      'I use them deliberately: Transactional Outbox, Saga, Circuit Breaker and idempotency keys in SENTINEL; manual offset commits, bisection recovery, CQRS and a write-through cache in NEXUS; a hybrid RAG pipeline, a multi-agent supervisor and model routing in CORTEX.',
+      'Every project page lists its patterns, with an architecture diagram.',
+    ],
+    action: { label: 'Open Projects', app: 'projects' },
+  },
+  {
     id: 'kafka',
     weight: 2,
     keywords: ['kafka', 'event-driven', 'event driven', 'streaming', 'consumer*', 'offset*', 'dlq', 'dead letter', 'queue*'],
@@ -284,6 +294,36 @@ export const matchTopics = (question) => {
     .sort((a, b) => b.score - a.score);
 };
 
+// Any skill or design pattern listed on the site, so specific questions get specific answers.
+const stripParens = (name) => name.replace(/\s*\(.*?\)\s*/g, ' ').trim();
+const MENTIONS = [
+  ...skills
+    .filter((g) => g.id !== 'patterns')
+    .flatMap((g) => g.items.map((item) => ({ kind: 'skill', name: stripParens(item), group: g.name }))),
+  ...projects.flatMap((p) =>
+    p.patterns.map((pt) => ({ kind: 'pattern', name: stripParens(pt.name), project: p.name, where: pt.where })),
+  ),
+];
+
+const AMBIGUOUS = new Set(['builder', 'strategy', 'pipeline', 'repository', 'decorator', 'sidecar', 'observer', 'fan-out', 'health check', 'backpressure']);
+
+const findMention = (question) => {
+  const q = ` ${normalise(question).trim().split(' ').map((w) => w.replace(/^[.\-/]+|[.\-/]+$/g, '')).join(' ')} `;
+  const asksPattern = /\bpatterns?\b/.test(q);
+  const hits = MENTIONS.filter((m) => {
+    const name = normalise(m.name).trim();
+    if (!name || !q.includes(` ${name} `)) return false;
+    // Pattern names that are everyday words only count when the question is about patterns.
+    return m.kind === 'skill' || asksPattern || !AMBIGUOUS.has(name);
+  });
+  return hits.sort((a, b) => b.name.length - a.name.length)[0] || null;
+};
+
+const mentionAnswer = (m) =>
+  m.kind === 'pattern'
+    ? { texts: [`Yes, I use ${m.name} in ${m.project}: ${m.where}`], action: { label: 'Open Projects', app: 'projects' } }
+    : { texts: [`Yes, ${m.name} is part of my toolkit (${m.group}).`], action: { label: 'Open Skills', app: 'skills' } };
+
 const toAction = (action, question) => {
   if (!action) return undefined;
   if (action === 'gmail-prefill') return { label: 'Send it via Gmail', app: 'gmail', payload: { body: question } };
@@ -293,6 +333,11 @@ const toAction = (action, question) => {
 // Reply bubbles for a typed question: { texts, action, matched }.
 export const answerQuestion = (question) => {
   const [best, second] = matchTopics(question);
+  const mention = findMention(question);
+  const generic = !best || ['skills', 'patterns', 'experience', 'projects', 'intro'].includes(best.topic.id);
+  if (mention && generic) {
+    return { matched: true, topic: `mention:${mention.kind}`, ...mentionAnswer(mention) };
+  }
   if (!best) {
     return {
       matched: false,
@@ -308,5 +353,9 @@ export const answerQuestion = (question) => {
     !['personal', 'greeting', 'thanks', 'hire', 'joke', 'resume', 'intro'].includes(best.topic.id) &&
     !['greeting', 'thanks', 'experience', 'projects', 'skills', 'intro', 'contact'].includes(second.topic.id);
   if (both) texts.push(...second.topic.answer().slice(0, 1));
+  // The question named a specific skill or pattern the answer doesn't cover: add a line about it.
+  if (mention && !texts.join(' ').toLowerCase().includes(mention.name.toLowerCase())) {
+    texts.push(mentionAnswer(mention).texts[0]);
+  }
   return { matched: true, topic: best.topic.id, texts, action: toAction(best.topic.action, question) };
 };

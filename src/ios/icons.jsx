@@ -277,6 +277,20 @@ export const Icon = {
       />
     </svg>
   ),
+  grid: (
+    <svg viewBox="0 0 24 24" {...stroke} aria-hidden="true">
+      <rect x="4" y="4" width="7" height="7" rx="1.5" />
+      <rect x="13" y="4" width="7" height="7" rx="1.5" />
+      <rect x="4" y="13" width="7" height="7" rx="1.5" />
+      <rect x="13" y="13" width="7" height="7" rx="1.5" />
+    </svg>
+  ),
+  layers: (
+    <svg viewBox="0 0 24 24" {...stroke} aria-hidden="true">
+      <path d="m12 3 9 5-9 5-9-5z" />
+      <path d="m3 12.5 9 5 9-5M3 16.5l9 5 9-5" />
+    </svg>
+  ),
   checklist: (
     <svg viewBox="0 0 24 24" {...stroke} aria-hidden="true">
       <path d="m4 6.5 1.6 1.6L8.5 5M4 13.5l1.6 1.6 2.9-3.1M11.5 7h8.5M11.5 14h8.5M4 19.5h16" />
