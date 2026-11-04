@@ -2945,7 +2945,7 @@ a.contact-row:hover,
   align-items: flex-start;
 }
 
-.msg-ai-note {
+.msg-hint {
   align-self: center;
   max-width: 90%;
   margin: -2px 0 12px;
@@ -2955,13 +2955,6 @@ a.contact-row:hover,
   color: var(--label2);
   font-size: 12.5px;
   text-align: center;
-}
-
-.ai-tag {
-  margin-top: 3px;
-  padding-left: 4px;
-  color: var(--label2);
-  font-size: 11px;
 }
 
 .bubble-row:has(.bubble--tail) {
