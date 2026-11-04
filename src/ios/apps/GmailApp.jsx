@@ -89,9 +89,11 @@ const GmailApp = ({ goHome, payload }) => {
       setStatus('sent');
       showToast('Message sent', 'success');
     } catch (err) {
-      console.error(err);
+      // EmailJS rejects with { status, text }; log both so the cause is easy to find.
+      const code = err?.status || '';
+      console.error(`[Gmail] EmailJS could not send (status ${code || 'unknown'}): ${err?.text || err?.message || err}`);
       setStatus('error');
-      showToast("Couldn't send. Try again, or use Gmail instead.", 'error', true);
+      showToast(`Couldn't send${code ? ` (error ${code})` : ''}. Try again, or use Gmail instead.`, 'error', true);
     }
   };
 
