@@ -3240,6 +3240,17 @@ a.contact-row:hover,
   font-size: 16px;
 }
 
+/* Keep browser autofill from painting the fields white in dark mode. */
+.gm-row input:-webkit-autofill,
+.gm-row input:-webkit-autofill:hover,
+.gm-row input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--label);
+  caret-color: var(--label);
+  -webkit-box-shadow: 0 0 0 1000px var(--gm-bg) inset;
+  box-shadow: 0 0 0 1000px var(--gm-bg) inset;
+  transition: background-color 99999s ease-out 0s;
+}
+
 .gm-row input::placeholder,
 .gm-body::placeholder {
   color: var(--label2);
