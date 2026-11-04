@@ -8,10 +8,10 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: {
-        // Classic 3D portfolio at "/"
+        // iOS-style portfolio at "/"
         main: fileURLToPath(new URL('./index.html', import.meta.url)),
-        // iOS home-screen portfolio at "/ios/"
-        ios: fileURLToPath(new URL('./ios/index.html', import.meta.url)),
+        // Previous 3D portfolio, kept at "/classic/" (not linked from the site)
+        classic: fileURLToPath(new URL('./classic/index.html', import.meta.url)),
       },
     },
   },

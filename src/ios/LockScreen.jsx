@@ -26,7 +26,7 @@ const notifications = [
   },
 ];
 
-const LockScreen = ({ now, onUnlock, openApp, framed }) => {
+const LockScreen = ({ now, onUnlock, openApp, desktop }) => {
   const dragged = useRef(false);
 
   useEffect(() => {
@@ -46,7 +46,7 @@ const LockScreen = ({ now, onUnlock, openApp, framed }) => {
 
   return (
     <motion.div
-      className={`lock ${framed ? 'lock--framed' : ''}`}
+      className="lock"
       initial={false}
       exit={{ y: '-100%', opacity: 0.4 }}
       transition={{ type: 'tween', ease: [0.32, 0.72, 0, 1], duration: 0.5 }}
@@ -112,7 +112,7 @@ const LockScreen = ({ now, onUnlock, openApp, framed }) => {
           className="lock-hint"
           animate={{ y: [0, -5, 0], opacity: [0.65, 1, 0.65] }}
           transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}>
-          {framed ? 'Click or swipe up to open' : 'Swipe up to open'}
+          {desktop ? 'Click or swipe up to open' : 'Swipe up to open'}
         </motion.span>
         <span className="lock-round" aria-hidden="true">
           {Icon.camera}

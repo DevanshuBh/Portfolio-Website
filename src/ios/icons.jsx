@@ -107,22 +107,6 @@ export const Glyph = {
       <path d="M51 19.5c0-3.7-4.2-5.8-7.2-3.6L42 17.3v10.2z" fill="#fbbc04" />
     </svg>
   ),
-  compass: (
-    <svg viewBox="0 0 60 60" aria-hidden="true">
-      <defs>
-        <linearGradient id="saf" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#1fc0ff" />
-          <stop offset="1" stopColor="#1462e8" />
-        </linearGradient>
-      </defs>
-      <circle cx="30" cy="30" r="24" fill="url(#saf)" />
-      <circle cx="30" cy="30" r="21" fill="none" stroke="#fff" strokeWidth="2.4" strokeDasharray="0.9 2.4" opacity=".85" />
-      <g transform="rotate(45 30 30)">
-        <path d="M30 11 34 30h-8z" fill="#ff3b30" />
-        <path d="M30 49 26 30h8z" fill="#fff" />
-      </g>
-    </svg>
-  ),
   github: (
     <svg viewBox="0 0 512 512" aria-hidden="true">
       <path
@@ -257,12 +241,6 @@ export const Icon = {
         fill="currentColor"
         d="M12 2.5a7 7 0 0 0-7 7c0 5 7 12 7 12s7-7 7-12a7 7 0 0 0-7-7zm0 9.6a2.6 2.6 0 1 1 0-5.2 2.6 2.6 0 0 1 0 5.2z"
       />
-    </svg>
-  ),
-  globe: (
-    <svg viewBox="0 0 24 24" {...stroke} aria-hidden="true">
-      <circle cx="12" cy="12" r="9" />
-      <path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z" />
     </svg>
   ),
   sparkles: (

@@ -3,11 +3,16 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Icon } from './icons.jsx';
 import { experience, profile, projects, skills } from './data.js';
 
-const PAGES = [
-  [{ widget: 'profile' }, 'about', 'experience', 'projects', 'skills', 'education', 'wallet', 'resume', 'timeline', 'github', 'linkedin', 'kaggle', 'medium', { widget: 'impact' }],
-  [{ widget: 'stack' }, 'leetcode', 'maps'],
+// iPhone layout: two swipeable pages of a 4-column grid.
+const PHONE_PAGES = [
+  [{ widget: 'profile' }, 'about', 'experience', 'projects', 'skills', 'education', 'wallet', 'timeline', 'maps', 'github', 'linkedin', 'kaggle', 'medium', { widget: 'impact' }],
+  [{ widget: 'stack' }, 'leetcode'],
 ];
-const DOCK = ['phone', 'gmail', 'messages', 'safari'];
+// Wide-screen (iPad-style) layout: everything on one 6-column page.
+const DESKTOP_PAGES = [
+  [{ widget: 'profile' }, 'about', 'experience', 'projects', 'skills', 'education', 'wallet', 'timeline', 'maps', { widget: 'impact' }, 'github', 'linkedin', 'kaggle', 'medium', { widget: 'stack' }, 'leetcode'],
+];
+const DOCK = ['phone', 'gmail', 'messages', 'resume'];
 
 const STACK_CHIPS = ['Java 21', 'Spring Boot', 'Kafka', 'Redis', 'PostgreSQL', 'LangGraph', 'Bedrock', 'AWS', 'Docker', 'React', 'Next.js'];
 
@@ -140,18 +145,29 @@ const StackWidget = ({ openApp, tab }) => (
 const WIDGETS = { profile: ProfileWidget, impact: ImpactWidget, stack: StackWidget };
 const WIDGET_LABELS = { profile: 'Profile', impact: 'Impact', stack: 'Tech Stack' };
 
-const HomeScreen = ({ apps, openApp, now, active }) => {
+const HomeScreen = ({ apps, openApp, now, active, desktop }) => {
+  const PAGES = desktop ? DESKTOP_PAGES : PHONE_PAGES;
   const pagesRef = useRef(null);
   const [page, setPage] = useState(0);
   const drag = useRef(null);
   const suppressClick = useRef(false);
 
-  const goToPage = useCallback((i) => {
-    const el = pagesRef.current;
-    if (!el) return;
-    const target = Math.max(0, Math.min(PAGES.length - 1, i));
-    el.scrollTo({ left: target * el.clientWidth, behavior: 'smooth' });
-  }, []);
+  const pageCount = PAGES.length;
+  const goToPage = useCallback(
+    (i) => {
+      const el = pagesRef.current;
+      if (!el) return;
+      const target = Math.max(0, Math.min(pageCount - 1, i));
+      el.scrollTo({ left: target * el.clientWidth, behavior: 'smooth' });
+    },
+    [pageCount],
+  );
+
+  // Switching between the phone and wide layouts resets to the first page.
+  useEffect(() => {
+    if (pagesRef.current) pagesRef.current.scrollLeft = 0;
+    setPage(0);
+  }, [desktop]);
 
   const onScroll = () => {
     const el = pagesRef.current;
@@ -252,6 +268,7 @@ const HomeScreen = ({ apps, openApp, now, active }) => {
         ))}
       </div>
 
+      {PAGES.length > 1 && (
       <div className="page-dots" role="tablist" aria-label="Home screen pages">
         {PAGES.map((_, i) => (
           <button
@@ -266,6 +283,7 @@ const HomeScreen = ({ apps, openApp, now, active }) => {
           />
         ))}
       </div>
+      )}
 
       <nav className="dock" aria-label="Dock">
         {DOCK.map((id) => (

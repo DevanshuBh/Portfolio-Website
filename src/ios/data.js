@@ -1,5 +1,5 @@
 // Content for the iOS-style portfolio. Source of truth: Devanshu's current resume,
-// plus everything the classic portfolio shows (NEXUS project, LeetCode, certificates).
+// plus everything the previous portfolio showed (NEXUS project, LeetCode, certificates).
 
 export const profile = {
   name: 'Devanshu Bhargava',
@@ -31,10 +31,9 @@ export const links = {
   kaggle: { label: 'Kaggle', handle: 'devanshubhargava1013', url: 'https://www.kaggle.com/devanshubhargava1013' },
   medium: { label: 'Medium', handle: '@bhargavadevanshu10', url: 'https://medium.com/@bhargavadevanshu10' },
   leetcode: { label: 'LeetCode', handle: 'devanshu101302', url: 'https://leetcode.com/u/devanshu101302/' },
-  classic: { label: 'Classic portfolio', url: '/' },
 };
 
-// EmailJS settings (same account the classic portfolio's contact form uses).
+// EmailJS settings (same account the previous portfolio's contact form used).
 export const emailjsConfig = {
   serviceId: 'service_0vfhxig',
   templateId: 'template_hxrfnyh',

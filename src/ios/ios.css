@@ -102,101 +102,25 @@ svg {
   outline-offset: 2px;
 }
 
-/* ---------- Stage & device ---------------------------------------------- */
-
-.stage {
-  position: fixed;
-  inset: 0;
-}
-
-.stage--framed {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 72px;
-  padding: 20px 16px;
-  background:
-    radial-gradient(900px 700px at 12% 8%, rgba(91, 60, 255, 0.28) 0%, transparent 60%),
-    radial-gradient(800px 600px at 92% 92%, rgba(255, 61, 119, 0.22) 0%, transparent 60%),
-    #07070c;
-}
-
-.stage--full {
-  background: #000;
-}
-
-.device-slot {
-  position: relative;
-  flex: none;
-}
-
-.device {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 418px;
-  height: 872px;
-  padding: 14px;
-  border-radius: 68px;
-  background: #0c0c0f;
-  box-shadow:
-    0 0 0 2px #3b3b42,
-    0 0 0 5px #17171b,
-    0 40px 100px rgba(0, 0, 0, 0.65),
-    inset 0 0 0 1.5px #2a2a2f;
-  transform-origin: top left;
-}
-
-.device-btn {
-  position: absolute;
-  width: 4px;
-  border-radius: 2px;
-  background: #2b2b31;
-}
-
-.device-btn--action {
-  left: -6px;
-  top: 150px;
-  height: 32px;
-}
-.device-btn--vol-up {
-  left: -6px;
-  top: 212px;
-  height: 62px;
-}
-.device-btn--vol-down {
-  left: -6px;
-  top: 288px;
-  height: 62px;
-}
-.device-btn--power {
-  right: -6px;
-  top: 240px;
-  height: 98px;
-}
-
 /* ---------- Screen ------------------------------------------------------- */
 
 .screen {
-  --safe-top: 54px;
-  --safe-bottom: 0px;
-  position: relative;
+  --safe-top: max(env(safe-area-inset-top), 14px);
+  --safe-bottom: env(safe-area-inset-bottom);
+  --icon: 60px;
+  position: fixed;
+  inset: 0;
   overflow: hidden;
   isolation: isolate;
   color: #fff;
+  background: #0b0b1e;
   user-select: none;
   -webkit-user-select: none;
 }
 
-.screen--framed {
-  border-radius: 54px;
-}
-
-.screen--full {
-  --safe-top: max(env(safe-area-inset-top), 14px);
-  --safe-bottom: env(safe-area-inset-bottom);
-  position: fixed;
-  inset: 0;
+.screen--desktop {
+  --safe-top: 34px;
+  --icon: clamp(56px, 7.4vh, 76px);
 }
 
 .screen input,
@@ -237,13 +161,13 @@ svg {
   left: 0;
   right: 0;
   z-index: 90;
-  height: 54px;
+  height: 34px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 4px 30px 0 46px;
+  padding: 0 24px;
   color: var(--label);
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
   pointer-events: none;
   transition: color 0.3s;
@@ -254,26 +178,19 @@ svg {
 }
 
 .sb-time {
-  min-width: 54px;
-  text-align: center;
-  letter-spacing: -0.2px;
+  display: flex;
+  gap: 8px;
+  letter-spacing: -0.1px;
+}
+
+.sb-date {
+  font-weight: 500;
 }
 
 .sb-icons {
   display: flex;
   align-items: center;
   gap: 6px;
-}
-
-.island {
-  position: absolute;
-  top: 11px;
-  left: 50%;
-  width: 124px;
-  height: 36px;
-  margin-left: -62px;
-  border-radius: 20px;
-  background: #000;
 }
 
 .home-bar {
@@ -398,9 +315,9 @@ svg {
 .app-icon {
   position: relative;
   flex: none;
-  width: 60px;
-  height: 60px;
-  border-radius: 14px;
+  width: var(--icon);
+  height: var(--icon);
+  border-radius: calc(var(--icon) * 0.233);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -453,11 +370,11 @@ svg {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 7px;
+  padding-top: calc(var(--icon) * 0.115);
 }
 
 .cal-day {
-  font-size: 10px;
+  font-size: calc(var(--icon) * 0.167);
   font-weight: 600;
   letter-spacing: 0.03em;
   color: #ff3b30;
@@ -465,7 +382,7 @@ svg {
 
 .cal-num {
   margin-top: 1px;
-  font-size: 31px;
+  font-size: calc(var(--icon) * 0.52);
   font-weight: 300;
   line-height: 1;
   color: #000;
@@ -665,40 +582,38 @@ svg {
 
 /* shorter phones (e.g. iPhone SE) in full-screen mode */
 @media (max-height: 720px) {
-  .screen--full .home-grid {
+  .screen--phone .home-grid {
     grid-template-rows: repeat(6, minmax(72px, 1fr));
     row-gap: 5px;
   }
-  .screen--full .icon-btn {
+  .screen--phone .icon-btn {
     gap: 4px;
   }
-  .screen--full .app-icon {
-    width: 54px;
-    height: 54px;
-    border-radius: 12.5px;
+  .screen--phone {
+    --icon: 54px;
   }
-  .screen--full .widget {
+  .screen--phone .widget {
     padding: 11px 12px;
     border-radius: 20px;
   }
-  .screen--full .widget-label {
+  .screen--phone .widget-label {
     margin-top: 4px;
   }
-  .screen--full .pw-avatar {
+  .screen--phone .pw-avatar {
     width: 42px;
     height: 42px;
   }
-  .screen--full .iw-value {
+  .screen--phone .iw-value {
     font-size: 20px;
   }
-  .screen--full .dock {
+  .screen--phone .dock {
     padding: 10px;
     border-radius: 30px;
   }
-  .screen--full .page-dots {
+  .screen--phone .page-dots {
     padding: 4px 0 6px;
   }
-  .screen--full .lock-time {
+  .screen--phone .lock-time {
     font-size: 84px;
   }
 }
@@ -733,9 +648,11 @@ svg {
 }
 
 .dock {
+  align-self: center;
+  width: calc(100% - 24px);
+  max-width: 500px;
   display: flex;
   justify-content: space-around;
-  margin: 0 12px;
   padding: 14px 10px;
   border-radius: 34px;
   background: rgba(255, 255, 255, 0.2);
@@ -813,6 +730,7 @@ svg {
 
 .lock-notifs {
   width: 100%;
+  max-width: 440px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -891,6 +809,7 @@ svg {
 
 .lock-bottom {
   width: 100%;
+  max-width: 520px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -3169,105 +3088,158 @@ a.contact-row:hover,
   height: 34px;
 }
 
-/* ---------- Desktop side panel ------------------------------------------ */
+/* ---------- Wide windows: iPad-style home screen ----------------------- */
 
-.side-panel {
-  flex: none;
-  width: 340px;
-  color: #fff;
+.screen--phone .home-grid {
+  width: 100%;
+  max-width: 540px;
+  max-height: 700px;
+  margin: 0 auto;
 }
 
-.side-avatar {
-  width: 84px;
-  height: 84px;
-  border-radius: 50%;
-  object-fit: cover;
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.15);
+.screen--desktop .home {
+  padding-top: calc(var(--safe-top) + 14px);
+  padding-bottom: 30px;
 }
 
-.side-panel h1 {
-  margin: 18px 0 4px;
-  font-size: 34px;
-  letter-spacing: -0.6px;
+.screen--desktop .home-grid {
+  max-width: 1000px;
+  margin: 0 auto;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-rows: repeat(6, minmax(calc(var(--icon) + 26px), 1fr));
+  grid-auto-flow: row dense;
+  row-gap: 10px;
+  padding: 0 32px;
 }
 
-.side-title {
-  margin: 0;
-  font-size: 17px;
-  opacity: 0.85;
+.screen--desktop .icon-btn {
+  width: 120px;
+  gap: 8px;
 }
 
-.side-tag {
-  margin: 10px 0 0;
-  font-weight: 700;
-  background: linear-gradient(90deg, #ff9f0a, #ff375f, #bf5af2);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+.screen--desktop .icon-label {
+  max-width: 120px;
+  font-size: 13px;
 }
 
-.side-tips {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin: 26px 0 0;
-  padding: 0;
-  list-style: none;
-  font-size: 14.5px;
-  line-height: 1.45;
-  color: rgba(255, 255, 255, 0.72);
+.screen--desktop .widget-slot {
+  padding: 2px 16px 0;
 }
 
-.side-tips b {
-  font-weight: 600;
-  color: #fff;
+.screen--desktop .widget {
+  padding: 18px 20px;
+  border-radius: 26px;
 }
 
-.side-tips kbd {
-  padding: 1px 6px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 5px;
-  font: inherit;
+.screen--desktop .pw-avatar {
+  width: clamp(42px, 6.4vh, 64px);
+  height: clamp(42px, 6.4vh, 64px);
+}
+
+@media (max-height: 800px) {
+  .screen--desktop .widget {
+    padding: 13px 18px;
+  }
+  .screen--desktop .pw-name {
+    font-size: 22px;
+  }
+  .screen--desktop .iw-value {
+    font-size: 26px;
+  }
+}
+
+.screen--desktop .pw-status {
+  padding: 4px 9px 4px 7px;
   font-size: 12px;
 }
 
-.side-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 28px;
+.screen--desktop .pw-name {
+  font-size: 26px;
 }
 
-.side-btn {
-  height: 44px;
-  display: inline-flex;
-  align-items: center;
+.screen--desktop .pw-title {
+  font-size: 15px;
+}
+
+.screen--desktop .pw-meta {
+  font-size: 13px;
+}
+
+.screen--desktop .iw-kicker,
+.screen--desktop .iw-sub,
+.screen--desktop .iw-label {
+  font-size: 13px;
+}
+
+.screen--desktop .iw-value {
+  font-size: 32px;
+}
+
+.screen--desktop .sw-chips {
   gap: 8px;
-  padding: 0 16px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
-  font-size: 14.5px;
-  font-weight: 600;
-  transition: background 0.15s;
 }
 
-.side-btn:hover {
-  background: rgba(255, 255, 255, 0.18);
+.screen--desktop .sw-chip {
+  padding: 6px 12px;
+  font-size: 14px;
 }
 
-.side-btn svg {
-  width: 18px;
-  height: 18px;
+.screen--desktop .dock {
+  width: auto;
+  max-width: none;
+  gap: 24px;
+  padding: 12px 20px;
+  border-radius: 30px;
 }
 
-.side-btn--primary {
-  background: #fff;
-  color: #000;
+.screen--desktop .lock-time {
+  font-size: 120px;
 }
 
-.side-btn--primary:hover {
-  background: #e9e9ee;
+/* Apps keep a readable centred column on wide windows. */
+@media (min-width: 700px) {
+  .app {
+    --side: max(16px, calc((100% - 760px) / 2));
+  }
+  .app-scroll,
+  .toolbar,
+  .msg-scroll,
+  .quick-replies,
+  .msg-input,
+  .gm-row,
+  .gm-body,
+  .gm-foot {
+    padding-left: var(--side);
+    padding-right: var(--side);
+  }
+  .nav,
+  .msg-nav,
+  .phone-nav {
+    padding-left: calc(var(--side) - 8px);
+    padding-right: calc(var(--side) - 8px);
+  }
+  .gm-bar {
+    padding-left: calc(var(--side) - 12px);
+    padding-right: calc(var(--side) - 12px);
+  }
+  .snackbar {
+    left: var(--side);
+    right: var(--side);
+  }
+  .bubble-row {
+    max-width: 70%;
+  }
+  .today-art {
+    height: 300px;
+  }
+  .sheet {
+    left: 24px;
+    right: auto;
+    bottom: 24px;
+    width: 400px;
+    padding-bottom: 22px;
+    border-radius: 22px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

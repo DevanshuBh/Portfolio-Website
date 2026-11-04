@@ -7,7 +7,7 @@ import { emailjsConfig, profile } from '../data.js';
 
 const EMPTY = { name: '', email: '', subject: '', message: '' };
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-const DEFAULT_SUBJECT = 'Hello from your iOS portfolio 👋';
+const DEFAULT_SUBJECT = 'Hello from your portfolio 👋';
 
 // The draft survives closing and reopening the app during this visit.
 let savedDraft = EMPTY;

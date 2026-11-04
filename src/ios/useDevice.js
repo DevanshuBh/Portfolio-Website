@@ -1,29 +1,18 @@
 import { useEffect, useLayoutEffect, useState } from 'react';
 
-export const SCREEN_W = 390;
-export const SCREEN_H = 844;
-export const BEZEL = 14;
-const PANEL_MIN_WIDTH = 1100;
+const read = () => ({
+  // Wide screens get an iPad-style layout (one big home page); phones and narrow windows get the iPhone layout.
+  desktop: window.innerWidth >= 900 && window.innerHeight >= 560,
+});
 
-const read = () => {
-  const w = window.innerWidth;
-  const h = window.innerHeight;
-  const framed = w > 500;
-  const panel = framed && w >= PANEL_MIN_WIDTH;
-  const deviceW = SCREEN_W + BEZEL * 2;
-  const deviceH = SCREEN_H + BEZEL * 2;
-  const availW = w - 32 - (panel ? 420 : 0);
-  const availH = h - 40;
-  const scale = Math.max(0.3, Math.min(1, availW / deviceW, availH / deviceH));
-  return { framed, panel, scale };
-};
-
-// Decides between the framed desktop phone and the full-screen mobile layout.
 export const useDevice = () => {
   const [state, setState] = useState(read);
 
   useLayoutEffect(() => {
-    const onResize = () => setState(read());
+    const onResize = () => {
+      const next = read();
+      setState((prev) => (prev.desktop === next.desktop ? prev : next));
+    };
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
   }, []);
@@ -53,6 +42,9 @@ export const formatClock = (d) => {
   const h = d.getHours() % 12 || 12;
   return `${h}:${String(d.getMinutes()).padStart(2, '0')}`;
 };
+
+export const formatShortDate = (d) =>
+  d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 
 export const formatLongDate = (d) =>
   d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });

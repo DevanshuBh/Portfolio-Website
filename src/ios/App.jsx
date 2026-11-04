@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 
-import { Glyph, Icon, StatusIcons } from './icons.jsx';
-import { links, profile } from './data.js';
-import { SCREEN_H, SCREEN_W, formatClock, storage, useDevice, useNow } from './useDevice.js';
+import { Glyph, StatusIcons } from './icons.jsx';
+import { links } from './data.js';
+import { formatClock, formatShortDate, storage, useDevice, useNow } from './useDevice.js';
 import LockScreen from './LockScreen.jsx';
 import HomeScreen from './HomeScreen.jsx';
 import AboutApp from './apps/AboutApp.jsx';
@@ -96,14 +96,6 @@ export const APPS = {
     darkUI: true,
     Component: PhoneApp,
   },
-  safari: {
-    label: 'Safari',
-    bg: '#ffffff',
-    glyph: Glyph.compass,
-    href: links.classic.url,
-    sameTab: true,
-    hint: 'Classic portfolio',
-  },
   github: { label: 'GitHub', bg: '#181717', glyph: Glyph.github, glyphSize: '66%', href: links.github.url },
   linkedin: { label: 'LinkedIn', bg: '#0a66c2', glyph: Glyph.linkedin, glyphSize: '100%', href: links.linkedin.url },
   kaggle: { label: 'Kaggle', bg: '#20beff', glyph: Glyph.kaggle, glyphSize: '54%', href: links.kaggle.url },
@@ -117,7 +109,7 @@ const readHashApp = () => {
 };
 
 const App = () => {
-  const { framed, panel, scale } = useDevice();
+  const { desktop } = useDevice();
   const now = useNow();
   const screenRef = useRef(null);
 
@@ -136,23 +128,20 @@ const App = () => {
   const openApp = useCallback((id, payload = null, fromEl = null) => {
     if (!APPS[id]?.Component) return;
     let origin = null;
-    const screen = screenRef.current;
-    if (fromEl && screen) {
-      const s = screen.getBoundingClientRect();
+    if (fromEl) {
       const r = fromEl.getBoundingClientRect();
-      const k = s.width / screen.offsetWidth || 1;
-      origin = { x: (r.left + r.width / 2 - s.left) / k, y: (r.top + r.height / 2 - s.top) / k };
+      origin = { x: r.left + r.width / 2, y: r.top + r.height / 2 };
     }
     setOpen((prev) => ({ id, payload, origin, n: (prev?.n || 0) + 1 }));
   }, []);
 
   const goHome = useCallback(() => setOpen(null), []);
 
-  // Keep the URL hash in sync so a specific app can be linked to (e.g. /ios/#gmail).
+  // Keep the URL hash in sync so a specific app can be linked to (e.g. /#gmail).
   useEffect(() => {
-    const target = open ? `#${open.id}` : ' ';
-    if ((window.location.hash || ' ') !== target) {
-      window.history.replaceState(null, '', target === ' ' ? window.location.pathname + window.location.search : target);
+    const target = open ? `#${open.id}` : '';
+    if (window.location.hash !== target) {
+      window.history.replaceState(null, '', target || window.location.pathname + window.location.search);
     }
   }, [open]);
 
@@ -166,9 +155,9 @@ const App = () => {
 
   const current = open ? APPS[open.id] : null;
   const AppComponent = current?.Component;
-  const origin = open?.origin || { x: SCREEN_W / 2, y: SCREEN_H * 0.85 };
+  const origin = open?.origin || { x: window.innerWidth / 2, y: window.innerHeight * 0.85 };
   // White status bar / home bar over the wallpaper and over always-dark apps.
-  const darkChrome = !open || locked || !!current?.darkUI;
+  const lightChrome = !open || locked || !!current?.darkUI;
 
   // Home-bar swipe-up gesture.
   const swipe = useRef(null);
@@ -180,27 +169,26 @@ const App = () => {
     swipe.current = null;
   };
 
-  const screen = (
-    <div
-      ref={screenRef}
-      className={`screen ${framed ? 'screen--framed' : 'screen--full'}`}
-      style={framed ? { width: SCREEN_W, height: SCREEN_H } : undefined}>
+  return (
+    <div ref={screenRef} className={`screen ${desktop ? 'screen--desktop' : 'screen--phone'}`}>
       <div className="wallpaper" aria-hidden="true" />
 
-      {framed && (
-        <div className={`statusbar ${darkChrome ? 'statusbar--light' : ''}`}>
-          <span className="sb-time">{formatClock(now)}</span>
-          <span className="island" aria-hidden="true" />
+      {desktop && (
+        <div className={`statusbar ${lightChrome ? 'statusbar--light' : ''}`}>
+          <span className="sb-time">
+            {formatClock(now)}
+            <span className="sb-date">{formatShortDate(now)}</span>
+          </span>
           <StatusIcons />
         </div>
       )}
 
       <motion.div
         className="home-layer"
-        animate={{ scale: open ? 0.92 : 1, opacity: open ? 0.4 : 1 }}
+        animate={{ scale: open ? 0.94 : 1, opacity: open ? 0.4 : 1 }}
         transition={{ type: 'spring', stiffness: 260, damping: 30 }}
         aria-hidden={!!open || locked}>
-        <HomeScreen apps={APPS} openApp={openApp} now={now} active={!open && !locked} />
+        <HomeScreen apps={APPS} openApp={openApp} now={now} active={!open && !locked} desktop={desktop} />
       </motion.div>
 
       <AnimatePresence>
@@ -221,13 +209,13 @@ const App = () => {
       </AnimatePresence>
 
       <AnimatePresence>
-        {locked && <LockScreen key="lock" now={now} onUnlock={unlock} openApp={openApp} framed={framed} />}
+        {locked && <LockScreen key="lock" now={now} onUnlock={unlock} openApp={openApp} desktop={desktop} />}
       </AnimatePresence>
 
       {!locked && (
         <button
           type="button"
-          className={`home-bar ${darkChrome ? 'home-bar--light' : ''} ${open ? 'home-bar--active' : ''}`}
+          className={`home-bar ${lightChrome ? 'home-bar--light' : ''} ${open ? 'home-bar--active' : ''}`}
           onClick={open ? goHome : undefined}
           onPointerDown={onBarPointerDown}
           onPointerUp={onBarPointerUp}
@@ -237,54 +225,6 @@ const App = () => {
           <span />
         </button>
       )}
-    </div>
-  );
-
-  if (!framed) return <div className="stage stage--full">{screen}</div>;
-
-  return (
-    <div className="stage stage--framed">
-      {panel && (
-        <aside className="side-panel">
-          <img className="side-avatar" src={profile.avatar} alt="" />
-          <h1>{profile.name}</h1>
-          <p className="side-title">{profile.title}</p>
-          <p className="side-tag">{profile.tagline}</p>
-          <ul className="side-tips">
-            <li>
-              <b>Tap an app</b> to open it — each one is a part of my portfolio.
-            </li>
-            <li>
-              <b>Swipe, drag or use ← →</b> to switch home screen pages.
-            </li>
-            <li>
-              <b>Click the bar</b> at the bottom of the phone or press <kbd>Esc</kbd> to go home.
-            </li>
-            <li>
-              <b>Gmail</b> sends an email straight to my inbox.
-            </li>
-          </ul>
-          <div className="side-actions">
-            <a className="side-btn side-btn--primary" href={profile.resumePdf} download={profile.resumeFileName}>
-              {Icon.download} Download resume
-            </a>
-            <a className="side-btn" href={links.classic.url}>
-              {Icon.globe} Classic portfolio
-            </a>
-          </div>
-        </aside>
-      )}
-      <div
-        className="device-slot"
-        style={{ width: (SCREEN_W + 28) * scale, height: (SCREEN_H + 28) * scale }}>
-        <div className="device" style={{ transform: `scale(${scale})` }}>
-          <span className="device-btn device-btn--action" aria-hidden="true" />
-          <span className="device-btn device-btn--vol-up" aria-hidden="true" />
-          <span className="device-btn device-btn--vol-down" aria-hidden="true" />
-          <span className="device-btn device-btn--power" aria-hidden="true" />
-          {screen}
-        </div>
-      </div>
     </div>
   );
 };

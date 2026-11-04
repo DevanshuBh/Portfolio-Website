@@ -94,14 +94,6 @@ const AboutApp = ({ goHome, openApp }) => {
             external
           />
         ))}
-        <Cell
-          icon={<MiniIcon bg="#fff" glyph={Glyph.compass} size="100%" />}
-          iconBg="transparent"
-          title="Classic portfolio"
-          subtitle="The 3D version of this site"
-          href={links.classic.url}
-          chevron
-        />
       </Group>
 
       <Group header="Explore">
