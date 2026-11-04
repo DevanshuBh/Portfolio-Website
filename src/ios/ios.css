@@ -2099,6 +2099,34 @@ a.contact-row:hover,
   border-top: 0.5px solid var(--sep);
 }
 
+.pd-patterns {
+  margin: 0;
+  padding: 2px 16px;
+  list-style: none;
+}
+
+.pd-pattern {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 0;
+}
+
+.pd-pattern + .pd-pattern {
+  border-top: 0.5px solid var(--sep);
+}
+
+.pd-pattern-name {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.pd-pattern-where {
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--label2);
+}
+
 .app .chip-row + .big-btn {
   margin-top: 24px;
 }

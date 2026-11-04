@@ -106,6 +106,22 @@ const ProjectDetail = ({ project }) => (
       ))}
     </div>
 
+    {project.patterns?.length > 0 && (
+      <>
+        <h2 className="section-title">Design patterns</h2>
+        <ul className="card pd-patterns">
+          {project.patterns.map((pt) => (
+            <li key={pt.name} className="pd-pattern">
+              <span className="pd-pattern-name" style={{ color: project.color }}>
+                {pt.name}
+              </span>
+              <span className="pd-pattern-where">{pt.where}</span>
+            </li>
+          ))}
+        </ul>
+      </>
+    )}
+
     <h2 className="section-title">Built with</h2>
     <div className="chip-row">
       {project.tags.map((t) => (
