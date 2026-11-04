@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { AppShell, Chip, PushStack, Rich } from '../ui.jsx';
 import { Icon } from '../icons.jsx';
 import { projects } from '../data.js';
+import { diagrams } from '../diagrams.js';
+import ArchDiagram from '../ArchDiagram.jsx';
 
 const ShieldGlyph = () => (
   <svg viewBox="0 0 64 64" aria-hidden="true">
@@ -82,6 +84,13 @@ const ProjectDetail = ({ project }) => (
     <div className="pd-shot">
       <ProjectArt project={project} />
     </div>
+
+    {diagrams[project.id] && (
+      <>
+        <h2 className="section-title">How it works</h2>
+        <ArchDiagram id={project.id} diagram={diagrams[project.id]} />
+      </>
+    )}
 
     <h2 className="section-title">Highlights</h2>
     <div className="card pd-highlights">

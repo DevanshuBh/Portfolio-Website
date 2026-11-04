@@ -8,7 +8,7 @@ import { formatClock } from '../useDevice.js';
 const GREETING = [
   `Hi, I am ${profile.firstName} 👋`,
   "I'm a Full Stack Software Engineer: Java/Spring Boot microservices and event-driven systems on Kafka, Redis & PostgreSQL, plus hands-on GenAI (RAG, GraphRAG, LangGraph).",
-  'Pick a question below, or type your own 👇',
+  'Tap a question below for an instant answer, or type your own and my AI assistant will reply ✨',
 ];
 
 const QUESTIONS = [
@@ -76,6 +76,36 @@ const msg = (from, text, action) => ({ id: ++uid, from, text, action });
 // Conversation survives closing and reopening the app during this visit.
 let saved = null;
 
+const AI_TIMEOUT_MS = 30000;
+
+// Ask the AI assistant (/api/ask). Resolves to { ok, reply, action } or { ok: false, reason }.
+const askAssistant = async (history) => {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), AI_TIMEOUT_MS);
+  try {
+    const r = await fetch('/api/ask', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: history }),
+      signal: controller.signal,
+    });
+    const isJson = (r.headers.get('content-type') || '').includes('application/json');
+    const body = isJson ? await r.json() : null;
+    if (r.ok && typeof body?.reply === 'string' && body.reply) {
+      const action =
+        body.action && typeof body.action.app === 'string' && typeof body.action.label === 'string'
+          ? { app: body.action.app, label: body.action.label.slice(0, 40) }
+          : undefined;
+      return { ok: true, reply: body.reply, action };
+    }
+    return { ok: false, reason: body?.error || `http_${r.status}` };
+  } catch {
+    return { ok: false, reason: 'network' };
+  } finally {
+    clearTimeout(timer);
+  }
+};
+
 const MessagesApp = ({ goHome, openApp, now }) => {
   const [messages, setMessages] = useState(() => saved?.messages || GREETING.map((t) => msg('them', t)));
   const [asked, setAsked] = useState(() => saved?.asked || []);
@@ -91,13 +121,22 @@ const MessagesApp = ({ goHome, openApp, now }) => {
 
   // On close, cancel the typing animation but keep any replies that were still pending.
   const pending = useRef([]);
-  useEffect(
-    () => () => {
-      timers.current.forEach(clearTimeout);
+  const mounted = useRef(true);
+  useEffect(() => {
+    mounted.current = true;
+    const pendingTimers = timers.current; // same array for the component's lifetime
+    return () => {
+      mounted.current = false;
+      pendingTimers.forEach(clearTimeout);
       if (saved && pending.current.length) saved = { ...saved, messages: [...saved.messages, ...pending.current] };
-    },
-    [],
-  );
+    };
+  }, []);
+
+  // Add bubbles now, or straight to the saved conversation if the app was closed meanwhile.
+  const deliver = (items) => {
+    if (mounted.current) setMessages((m) => [...m, ...items]);
+    else if (saved) saved = { ...saved, messages: [...saved.messages, ...items] };
+  };
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -129,17 +168,39 @@ const MessagesApp = ({ goHome, openApp, now }) => {
     reply(item.a, item.action);
   };
 
-  const send = (e) => {
+  // Typed questions go to the AI assistant; if it's unavailable, offer to send them by email instead.
+  const send = async (e) => {
     e.preventDefault();
     const text = draft.trim();
     if (!text || typing) return;
     setDraft('');
-    setMessages((m) => [...m, msg('me', text)]);
-    reply(["Thanks for the message! I can't reply live here, but I'd love to read it. Send it straight to my inbox 👇"], {
-      label: 'Send it via Gmail',
-      app: 'gmail',
-      payload: { body: text },
-    });
+    const mine = msg('me', text);
+    const history = [...messages, mine]
+      .filter((m) => !m.local)
+      .map((m) => ({ role: m.from === 'me' ? 'user' : 'assistant', content: m.text }))
+      .slice(-12);
+    setMessages((m) => [...m, mine]);
+    setTyping('ai');
+
+    const result = await askAssistant(history);
+    if (mounted.current) setTyping(false);
+    if (result.ok) {
+      deliver([{ ...msg('them', result.reply, result.action), ai: true }]);
+      return;
+    }
+    const busy = result.reason === 'rate_limited';
+    deliver([
+      {
+        ...msg(
+          'them',
+          busy
+            ? "You're asking faster than my AI can think 😅 Give it a few minutes, or send your question straight to my inbox 👇"
+            : "My AI assistant is offline right now, but I'd love to read your question. Send it straight to my inbox 👇",
+          { label: 'Send it via Gmail', app: 'gmail', payload: { body: text } },
+        ),
+        local: true,
+      },
+    ]);
   };
 
   const remaining = QUESTIONS.filter((x) => !asked.includes(x.q));
@@ -166,6 +227,7 @@ const MessagesApp = ({ goHome, openApp, now }) => {
           <br />
           Today {startTime}
         </p>
+        <p className="msg-ai-note">✨ Type any question and my AI assistant answers from my resume.</p>
         <AnimatePresence initial={false}>
           {messages.map((m, i) => {
             const next = messages[i + 1];
@@ -183,6 +245,7 @@ const MessagesApp = ({ goHome, openApp, now }) => {
                     {m.action.label} {Icon.chevronRight}
                   </button>
                 )}
+                {m.ai && <span className="ai-tag">✨ AI assistant · answers from my resume</span>}
               </motion.div>
             );
           })}
@@ -193,7 +256,9 @@ const MessagesApp = ({ goHome, openApp, now }) => {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}>
-              <div className="bubble bubble--them bubble--tail typing" aria-label={`${profile.firstName} is typing`}>
+              <div
+                className="bubble bubble--them bubble--tail typing"
+                aria-label={typing === 'ai' ? 'AI assistant is thinking' : `${profile.firstName} is typing`}>
                 <i />
                 <i />
                 <i />
@@ -218,9 +283,9 @@ const MessagesApp = ({ goHome, openApp, now }) => {
           type="text"
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
-          placeholder="iMessage"
-          aria-label="Type a message"
-          maxLength={1000}
+          placeholder="Ask anything about my work…"
+          aria-label="Ask a question"
+          maxLength={800}
         />
         <button type="submit" className="msg-send" disabled={!draft.trim() || typing} aria-label="Send">
           {Icon.arrowUp}

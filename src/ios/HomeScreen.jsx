@@ -1,16 +1,19 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { Icon } from './icons.jsx';
+import { GitHubWidget, LeetCodeWidget, MediumWidget } from './LiveWidgets.jsx';
 import { experience, profile, projects, skills } from './data.js';
 
 // iPhone layout: two swipeable pages of a 4-column grid.
 const PHONE_PAGES = [
   [{ widget: 'profile' }, 'about', 'experience', 'projects', 'skills', 'education', 'wallet', 'timeline', 'leetcode', 'github', 'linkedin', 'kaggle', 'medium', { widget: 'impact' }],
-  [{ widget: 'stack' }, { widget: 'forecast' }],
+  [{ widget: 'github' }, { widget: 'leetcode' }, { widget: 'forecast' }, { widget: 'medium' }],
+  [{ widget: 'stack' }],
 ];
-// Wide-screen (iPad-style) layout: everything on one 6-column page.
+// Wide-screen (iPad-style) layout: two pages of a 6-column grid.
 const DESKTOP_PAGES = [
-  [{ widget: 'profile' }, 'about', 'experience', 'projects', 'skills', 'education', 'wallet', 'timeline', 'leetcode', { widget: 'impact' }, { widget: 'forecast' }, { widget: 'stack' }, 'github', 'linkedin', 'kaggle', 'medium'],
+  [{ widget: 'profile' }, 'about', 'experience', 'projects', 'skills', 'education', 'wallet', 'timeline', 'leetcode', { widget: 'impact' }, { widget: 'forecast' }, { widget: 'github' }, 'github', 'linkedin', 'kaggle', 'medium'],
+  [{ widget: 'medium' }, { widget: 'leetcode' }, { widget: 'stack' }],
 ];
 const DOCK = ['phone', 'gmail', 'messages', 'resume'];
 
@@ -165,8 +168,24 @@ const ForecastWidget = ({ openApp, tab }) => (
   </button>
 );
 
-const WIDGETS = { profile: ProfileWidget, impact: ImpactWidget, stack: StackWidget, forecast: ForecastWidget };
-const WIDGET_LABELS = { profile: 'Profile', impact: 'Impact', stack: 'Tech Stack', forecast: 'Dev Forecast' };
+const WIDGETS = {
+  profile: ProfileWidget,
+  impact: ImpactWidget,
+  stack: StackWidget,
+  forecast: ForecastWidget,
+  github: GitHubWidget,
+  medium: MediumWidget,
+  leetcode: LeetCodeWidget,
+};
+const WIDGET_LABELS = {
+  profile: 'Profile',
+  impact: 'Impact',
+  stack: 'Tech Stack',
+  forecast: 'Dev Forecast',
+  github: 'GitHub Activity',
+  medium: 'Latest Writing',
+  leetcode: 'LeetCode',
+};
 
 const HomeScreen = ({ apps, openApp, now, active, desktop }) => {
   const PAGES = desktop ? DESKTOP_PAGES : PHONE_PAGES;
@@ -274,8 +293,8 @@ const HomeScreen = ({ apps, openApp, now, active, desktop }) => {
                 if (typeof item === 'object') {
                   const W = WIDGETS[item.widget];
                   return (
-                    <div key={item.widget} className={`widget-slot widget-slot--${item.widget}`}>
-                      <W openApp={openApp} tab={pi === page ? tab : -1} />
+                    <div key={`w-${item.widget}`} className={`widget-slot widget-slot--${item.widget}`}>
+                      <W openApp={openApp} tab={pi === page ? tab : -1} desktop={desktop} />
                       <span className="icon-label widget-label">{WIDGET_LABELS[item.widget]}</span>
                     </div>
                   );
