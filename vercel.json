@@ -1,6 +1,5 @@
 {
   "functions": {
-    "api/ask.js": { "maxDuration": 30 },
     "api/live.js": { "maxDuration": 15 }
   },
   "redirects": [
