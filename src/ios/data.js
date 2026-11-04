@@ -13,7 +13,6 @@ export const profile = {
   phoneHref: 'tel:+917999506057',
   tagline: 'Ideas → Code → Cloud → Impact',
   avatar: '/ios-assets/avatar.jpg',
-  photo: '/assets/abhay.jpeg',
   resumePdf: '/ios-assets/Devanshu_Bhargava_Resume.pdf',
   resumePreview: '/ios-assets/resume-preview.jpg',
   resumeFileName: 'Devanshu_Bhargava_Resume.pdf',
