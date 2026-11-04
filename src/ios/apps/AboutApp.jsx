@@ -97,7 +97,7 @@ const AboutApp = ({ goHome, openApp }) => {
       </Group>
 
       <Group header="Explore">
-        <Cell title="Experience" value="Infinite" chevron onClick={() => openApp('experience')} />
+        <Cell title="Experience" value={experience.company.split(' ')[0]} chevron onClick={() => openApp('experience')} />
         <Cell title="Projects" value="3" chevron onClick={() => openApp('projects')} />
         <Cell title="Skills" value="6 areas" chevron onClick={() => openApp('skills')} />
         <Cell title="Education" value="B.Tech" chevron onClick={() => openApp('education')} />

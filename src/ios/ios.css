@@ -1766,6 +1766,23 @@ a.contact-row:hover,
   height: 38px;
 }
 
+.exp-initials {
+  color: #fff;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.job + .job,
+.section-title--prev {
+  margin-top: 34px;
+}
+
+.section-title--prev {
+  padding-top: 18px;
+  border-top: 0.5px solid var(--sep);
+}
+
 .exp-head {
   flex: 1;
   min-width: 0;

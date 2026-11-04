@@ -40,7 +40,7 @@ export const emailjsConfig = {
 };
 
 // **text** marks bold, exactly as on the resume.
-export const experience = {
+const infinite = {
   company: 'Infinite Computer Solutions',
   role: 'Associate Software Engineer',
   duration: 'Oct 2024 – Present',
@@ -75,6 +75,11 @@ export const experience = {
     },
   ],
 };
+
+// Jobs, most recent first. The first entry is the current job; when changing jobs,
+// add the new one at the top and set the old one's end date.
+export const experiences = [infinite];
+export const experience = experiences[0];
 
 export const projects = [
   {
