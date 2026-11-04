@@ -32,7 +32,7 @@ const About = () => {
           viewport={{ once: true }}
         >
           <div className="grid-container">
-            <img src="assets/abhay.jpeg" alt="grid-1" className="w-full sm:h-[276px] h-fit object-contain" />
+            <img src="/assets/abhay.jpeg" alt="grid-1" className="w-full sm:h-[276px] h-fit object-contain" />
 
             <div>
               <p className="grid-headtext">Hi, I'm Devanshu Bhargava</p>
@@ -54,7 +54,7 @@ const About = () => {
           viewport={{ once: true }}
         >
           <div className="grid-container">
-            <img src="assets/grid3.png" alt="grid-2" className="w-full sm:h-[276px] h-fit object-contain" />
+            <img src="/assets/grid3.png" alt="grid-2" className="w-full sm:h-[276px] h-fit object-contain" />
 
             <div>
               <p className="grid-headtext">Tech Stack</p>
@@ -98,7 +98,7 @@ const About = () => {
           <div className="grid-container">
             <div className="rounded-3xl w-full sm:h-[200px] h-fit flex justify-center items-center">
               <div className="flex justify-center items-center h-[200px]">
-                <img src="assets/grid7.png" alt="resume" className="w-full h-full object-contain" />
+                <img src="/assets/grid7.png" alt="resume" className="w-full h-full object-contain" />
               </div>
             </div>
             <div>

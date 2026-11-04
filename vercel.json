@@ -1,0 +1,6 @@
+{
+  "redirects": [
+    { "source": "/ios", "destination": "/", "permanent": false },
+    { "source": "/ios/", "destination": "/", "permanent": false }
+  ]
+}
