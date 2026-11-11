@@ -62,3 +62,19 @@ export async function fetchJson(url, { method = 'GET', body, headers = {}, timeo
 }
 
 export const isNotFound = (err) => err instanceof HttpError && (err.status === 404 || err.status === 400 || err.status === 410 || err.status === 422);
+
+/** Fetch a web page as text. Returns null on any failure: a missing careers page is not an error. */
+export async function fetchText(url, { timeoutMs = 10000, maxBytes = 1500000 } = {}) {
+  const doFetch = globalThis.__jobApplyFetch ?? fetch;
+  try {
+    await throttle(new URL(url).host);
+    const res = await doFetch(url, { headers: { accept: 'text/html,application/xhtml+xml', 'user-agent': 'job-apply-cli/1.0' }, signal: AbortSignal.timeout(timeoutMs), redirect: 'follow' });
+    if (!res.ok) return { ok: false, status: res.status, text: '', url: res.url || url };
+    const type = res.headers.get('content-type') ?? '';
+    if (type && !/html|text/i.test(type)) return { ok: false, status: res.status, text: '', url: res.url || url };
+    const text = (await res.text()).slice(0, maxBytes);
+    return { ok: true, status: res.status, text, url: res.url || url };
+  } catch {
+    return null; // DNS failure, timeout, TLS error: the site is not there (or not for us)
+  }
+}

@@ -34,8 +34,15 @@ search:
   posted_within_days: 45              # skip older postings (when the board exposes a date); null = no limit
   max_jobs_per_company: 2             # best-matching N per company
 
+cover_letter: true                    # false = never write or attach a cover letter
+
 llm:
-  model: claude-opus-5-5              # cheaper options: claude-sonnet-5-5, claude-haiku-5-5
+  # none      = FREE. Nothing is sent to any paid service. The resume is tailored by re-ordering your own
+  #             skills, bullets and projects for each job, and the cover letter is assembled from your own lines.
+  # anthropic = PAID (needs ANTHROPIC_API_KEY, billed per job). Rewrites bullets in the job's wording,
+  #             writes a bespoke cover letter, and answers open form questions.
+  provider: none
+  model: claude-opus-5-5              # only used when provider is anthropic
   effort: medium
 
 apply:

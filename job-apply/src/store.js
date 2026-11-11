@@ -73,7 +73,7 @@ export async function writeTracker(state, boards = loadBoards()) {
     { header: 'Company', key: 'company', width: 34 }, { header: 'Result', key: 'status', width: 18 },
     { header: 'System', key: 'ats', width: 16 }, { header: 'Board', key: 'board', width: 30 },
     { header: 'Board calls itself', key: 'boardName', width: 30 }, { header: 'Confidence', key: 'confidence', width: 16 },
-    { header: 'Open jobs', key: 'total', width: 10 }, { header: 'Relevant', key: 'matched', width: 10 },
+    { header: 'Careers page', key: 'careers_url', width: 44 }, { header: 'Open jobs', key: 'total', width: 10 }, { header: 'Relevant', key: 'matched', width: 10 },
     { header: 'Note', key: 'note', width: 60 },
   ];
   for (const b of Object.values(boards).sort((a, c) => String(a.company).localeCompare(String(c.company)))) wc.addRow(b);

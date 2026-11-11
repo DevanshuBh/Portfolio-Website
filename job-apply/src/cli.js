@@ -82,11 +82,12 @@ async function doctor() {
   check('config.yaml', () => { cfg = loadConfig(); });
   check('profile.yaml', () => { loadProfile(); });
   if (cfg) {
-    check('resume PDF', () => { if (!fs.existsSync(cfg.resume_file)) throw new Error(`Not found: ${cfg.resume_file}`); return path.relative(ROOT, cfg.resume_file); });
+    if (cfg.llm.provider === 'anthropic') check('resume PDF', () => { if (!fs.existsSync(cfg.resume_file)) throw new Error(`Not found: ${cfg.resume_file}`); return path.relative(ROOT, cfg.resume_file); });
     try { const c = await getCompanies(cfg); log.info(`  ok   company list - ${c.length} companies`); } catch (err) { ok = false; log.info(`  FAIL company list\n       ${err.message}`); }
   }
-  check('Anthropic API key', () => { if (!hasApiKey()) throw new Error('ANTHROPIC_API_KEY is not set. It is needed to tailor resumes and write cover letters.'); });
-  check('data/resume.json', () => { if (!fs.existsSync(RESUME_JSON())) throw new Error('Not created yet - run "init".'); loadResume(); });
+  if (cfg?.llm.provider === 'anthropic') check('Anthropic API key', () => { if (!hasApiKey()) throw new Error('ANTHROPIC_API_KEY is not set (needed because llm.provider is "anthropic").'); });
+  else log.info('  ok   free mode - no paid service is used');
+  check('data/resume.json', () => { if (!fs.existsSync(RESUME_JSON())) throw new Error('Not created yet - run "init".'); const r = loadResume(); if (/^Your Name$/i.test(r.name.trim())) throw new Error('Still the template. Replace it with your own resume.'); return r.name; });
   try { const b = await launchHeadless(); await b.close(); log.info('  ok   browser'); } catch (err) { ok = false; log.info(`  FAIL browser\n       ${err.message}`); }
   try { const r = await fetch('https://boards-api.greenhouse.io/v1/boards/greenhouse', { signal: AbortSignal.timeout(15000) }); log.info(`  ok   job boards reachable (HTTP ${r.status})`); }
   catch (err) { ok = false; log.info(`  FAIL job boards reachable\n       ${err.cause?.code ?? err.message}. Check your connection / VPN / firewall.`); }
@@ -103,7 +104,13 @@ async function main() {
   const cfg = loadConfig();
   switch (command) {
     case 'init': {
-      if (fs.existsSync(RESUME_JSON()) && !opts.redo) throw new Error('data/resume.json already exists. Pass --redo to read the PDF again (your edits to it will be overwritten).');
+      if (fs.existsSync(RESUME_JSON()) && !opts.redo) throw new Error('data/resume.json already exists. Pass --redo to replace it (your edits to it will be overwritten).');
+      if (cfg.llm.provider !== 'anthropic') {
+        // Free mode cannot read a PDF into structured data reliably, so the user fills in a template once.
+        fs.copyFileSync(path.join(ROOT, 'resume.example.json'), RESUME_JSON());
+        log.info('Free mode: created data/resume.json from the template.\nReplace its contents with your own resume (same structure), then run "doctor".');
+        return;
+      }
       const r = await parseResume(cfg);
       log.info(`Read resume for ${r.name}: ${r.experience.length} roles, ${r.projects.length} projects, ${r.skills.reduce((n, s) => n + s.items.length, 0)} skills.`);
       log.info(`Target titles derived from it: ${r.target_titles.join(', ')}`);

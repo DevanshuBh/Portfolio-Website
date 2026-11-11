@@ -1,7 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { ADAPTERS, adapterById, detectFromUrl, nameMatches, greenhouse, lever, ashby, smartrecruiters, workable, recruitee } from './ats/index.js';
-import { DATA, norm, squash, mapLimit, writeFileAtomic, log } from './util.js';
+import { fetchText } from './http.js';
+import { DATA, norm, squash, mapLimit, writeFileAtomic, htmlToText, log } from './util.js';
 import { loadBoards, saveBoards } from './store.js';
 
 const GUESSABLE = [greenhouse, lever, ashby, smartrecruiters, workable, recruitee];
@@ -59,6 +60,59 @@ function writeOverridesTemplate(companies, boards, overrides) {
   writeFileAtomic(OVERRIDES(), rows.join('\n') + '\n');
 }
 
+const ATS_LINK_RE = /https?:(?:\\?\/){2}[^\s"'<>()\\]*?(?:greenhouse\.io|lever\.co|ashbyhq\.com|smartrecruiters\.com|workable\.com|recruitee\.com|myworkdayjobs\.com)[^\s"'<>()]*/gi;
+const CAREERS_LINK_RE = /href\s*=\s*["']([^"'#]*(?:career|jobs|join-us|work-with-us|open-positions|vacanc)[^"']*)["']/gi;
+
+function atsLinks(html) {
+  const out = [];
+  for (const m of html.matchAll(ATS_LINK_RE)) {
+    const hit = detectFromUrl(m[0].replace(/\\\//g, '/').replace(/&amp;/g, '&'));
+    if (hit && !out.some((o) => o.ats === hit.ats && o.board === hit.board)) out.push(hit);
+  }
+  return out;
+}
+
+const pageNames = (html, variants) => {
+  const text = ` ${norm(htmlToText(html.slice(0, 400000)))} `;
+  return variants.some((v) => norm(v).length >= 3 && text.includes(` ${norm(v)} `));
+};
+
+/**
+ * Free fallback when no board is found by name: look for the company's own website, open its
+ * careers page, and follow the link to whichever job-board system it uses.
+ * A site that does not mention the company by name is ignored (parked domains, unrelated owners).
+ */
+export async function scanCareersSite(company) {
+  const slug = squash(company.variants[0]);
+  if (slug.length < 3) return null;
+  const tlds = ['com', 'io', ...(/india/i.test(company.country ?? '') ? ['in', 'co.in'] : []), 'co', 'ai'];
+  let careersPage = null;
+  for (const tld of tlds) {
+    let origin = `https://${slug}.${tld}`;
+    let home = await fetchText(`${origin}/`);
+    if (!home) { origin = `https://www.${slug}.${tld}`; home = await fetchText(`${origin}/`); }
+    if (!home?.ok || !pageNames(home.text, company.variants)) continue;
+    const pages = [home];
+    const links = [...home.text.matchAll(CAREERS_LINK_RE)].map((m) => { try { return new URL(m[1].replace(/&amp;/g, '&'), home.url).href; } catch { return null; } }).filter(Boolean);
+    const candidates = [...new Set([...links, `${origin}/careers`, `${origin}/jobs`])].slice(0, 4);
+    for (const url of candidates) {
+      const direct = detectFromUrl(url);
+      if (direct) { pages.push({ ok: true, text: url, url }); continue; }
+      const page = await fetchText(url);
+      if (page?.ok) { pages.push(page); careersPage ??= page.url; }
+    }
+    for (const page of pages) {
+      for (const hit of atsLinks(`${page.url} ${page.text}`)) {
+        let res;
+        try { res = await adapterById(hit.ats).list(hit.board); } catch { continue; }
+        if (res) return { ...hit, boardName: res.name, total: res.jobs.length, careers_url: careersPage ?? page.url };
+      }
+    }
+    if (careersPage) return { careers_url: careersPage };
+  }
+  return null;
+}
+
 async function resolveOne(company, overrideUrl) {
   const base = { company: company.name, key: company.key, checkedAt: new Date().toISOString() };
   const url = overrideUrl || company.careers_url;
@@ -89,7 +143,11 @@ async function resolveOne(company, overrideUrl) {
     }
   }
   if (attempts && errors === attempts) return { ...base, status: 'error', note: 'Every lookup failed (network?). Will retry next run.' };
-  return { ...base, status: 'unresolved', note: rejected.length ? `Not found. Ignored look-alikes: ${rejected.join('; ')}` : 'No public job board found under this name. Add its careers URL to data/careers_urls.csv.' };
+  const site = await scanCareersSite(company);
+  if (site?.ats) return { ...base, status: 'resolved', ats: site.ats, board: site.board, boardName: site.boardName, confidence: 'linked from careers page', total: site.total, careers_url: site.careers_url };
+  const lookalikes = rejected.length ? ` Ignored look-alikes: ${rejected.join('; ')}.` : '';
+  if (site?.careers_url) return { ...base, status: 'unsupported_site', careers_url: site.careers_url, note: `Careers page found, but it is not on a supported job-board system; apply there by hand.${lookalikes}` };
+  return { ...base, status: 'unresolved', note: `No careers page or public job board found under this name. Add its careers URL to data/careers_urls.csv.${lookalikes}` };
 }
 
 /**

@@ -100,8 +100,8 @@ export async function applyAll(cfg, profile, companies, { only = null, auto = cf
 
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
   const ctxBrowser = await launchApplyContext({ headless: cfg.apply.headless });
-  const useLlm = hasApiKey();
-  if (!useLlm) log.warn('No ANTHROPIC_API_KEY set: questions your profile cannot answer will be left for you.');
+  const useLlm = cfg.llm.provider === 'anthropic' && hasApiKey();
+  if (!useLlm) log.info('Free mode: questions your profile cannot answer are left for you (add recurring ones to "answers" in profile.yaml).');
   const counts = {};
   const bump = (k) => { counts[k] = (counts[k] ?? 0) + 1; };
   const shotsDir = (job) => job.docs?.dir ?? '.';

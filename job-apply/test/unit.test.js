@@ -12,6 +12,7 @@ import { hasTerm, keywordScore } from '../src/keywords.js';
 import { fabricationIn, mergeTailored, checkCoverLetter, resumeHtml } from '../src/resume.js';
 import { ruleAnswer, matchOption, coerceText } from '../src/apply/answers.js';
 import { htmlToText } from '../src/util.js';
+import { localTailor, jdKeywords } from '../src/localTailor.js';
 
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'ja-unit-'));
 
@@ -253,4 +254,27 @@ test('html to text handles escaped and plain HTML', () => {
   assert.equal(htmlToText('&lt;p&gt;Hello &amp;amp; welcome&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Java&lt;/li&gt;&lt;/ul&gt;'), 'Hello & welcome\n- Java');
   assert.equal(htmlToText('<div>A<br>B</div><script>x()</script>'), 'A\nB');
   assert.equal(htmlToText(null), '');
+});
+
+test('free tailoring only re-orders the resume and builds the letter from its own lines', () => {
+  const job = { title: 'Backend Engineer', company: 'Globex', location: 'Pune', description: 'You will build services with Spring Boot, Docker and AWS. Kafka and Kubernetes are a plus. JavaScript not required. Payments domain.' };
+  assert.deepEqual(jdKeywords(job.description, base).slice(0, 4), ['JavaScript', 'Spring Boot', 'Docker', 'AWS']);
+  const t = localTailor(base, job);
+  const { resume, notes, score } = mergeTailored(base, t);
+  assert.deepEqual(notes, [], 'nothing needed reverting: no new content exists');
+  assert.equal(resume.skills[0].category, 'Tools', 'most relevant skill group first');
+  const flat = (r) => [...r.skills.flatMap((s) => s.items), ...r.experience.flatMap((e) => e.bullets), ...r.projects.flatMap((p) => p.bullets)].sort();
+  assert.deepEqual(flat(resume), flat(base), 'same content, different order');
+  assert.equal(resume.experience[0].bullets[0], base.experience[0].bullets[0]);
+  assert.equal(score.before, score.after);
+  assert.ok(score.missing.includes('Kafka') && score.missing.includes('Kubernetes'));
+  const cover = checkCoverLetter(t.cover_letter_paragraphs, base, { ...job, jdKeywordsLacking: score.missing }, 70);
+  assert.ok(cover.ok, cover.reason);
+  const text = cover.paragraphs.join(' ');
+  assert.match(text, /Backend Engineer position at Globex/); assert.match(text, /I built payment reconciliation services/);
+  assert.ok(!/Kafka|Kubernetes/.test(text), 'the letter never mentions skills you lack');
+  // No overlap at all -> no letter rather than a generic one.
+  const none = localTailor(base, { ...job, description: 'Looking for a pastry chef with croissant experience.' });
+  assert.deepEqual(none.cover_letter_paragraphs, []);
+  assert.match(checkCoverLetter([], base, job, 70).reason, /too little overlap/);
 });

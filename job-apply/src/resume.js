@@ -3,6 +3,7 @@ import path from 'node:path';
 import { z } from 'zod';
 import { ask } from './llm.js';
 import { hasTerm, keywordScore } from './keywords.js';
+import { localTailor } from './localTailor.js';
 import { DATA, escapeHtml, readJson, writeJson, squash, ensureDir } from './util.js';
 
 export const RESUME_JSON = () => path.join(DATA, 'resume.json');
@@ -57,6 +58,7 @@ export function loadResume() {
   if (!r) throw new Error('data/resume.json not found. Run "node src/cli.js init" first.');
   const parsed = ResumeSchema.safeParse(r);
   if (!parsed.success) throw new Error(`data/resume.json is malformed: ${parsed.error.issues.slice(0, 3).map((i) => `${i.path.join('.')}: ${i.message}`).join('; ')}`);
+  if (/^your name$/i.test(parsed.data.name.trim())) throw new Error('data/resume.json is still the template. Replace its contents with your own resume first.');
   return parsed.data;
 }
 
@@ -169,11 +171,12 @@ export function mergeTailored(base, t) {
 const PLACEHOLDER_RE = /\[[^\]]{0,40}\]|\{\{|\bXXX+\b|\b(your name|company name|hiring manager's name|insert)\b/i;
 
 /** Cover-letter sanity check: no template leftovers, no numbers invented, sensible length. */
-export function checkCoverLetter(paragraphs, base, job) {
+export function checkCoverLetter(paragraphs, base, job, minWords = 120) {
   const paras = (paragraphs ?? []).map((p) => String(p).replace(/\s+/g, ' ').trim()).filter(Boolean);
   const text = paras.join('\n\n');
   const words = text.split(/\s+/).filter(Boolean).length;
-  if (words < 120 || words > 450) return { ok: false, reason: `length ${words} words is outside 120-450` };
+  if (!words) return { ok: false, reason: 'too little overlap between the job and your resume to write one' };
+  if (words < minWords || words > 450) return { ok: false, reason: `length ${words} words is outside ${minWords}-450` };
   if (PLACEHOLDER_RE.test(text)) return { ok: false, reason: 'contains a placeholder' };
   const allowed = new Set([...numbersIn(resumeText(base)), ...numbersIn(`${job.title} ${job.company} ${job.description}`)]);
   const badNum = numbersIn(text).find((n) => !allowed.has(n));
@@ -200,13 +203,15 @@ Output:
 - cover_letter_paragraphs: 3-4 body paragraphs only (no greeting, date, address, or sign-off), 220-320 words in total. Specific to this company and role: say what the role needs, then show two or three pieces of the candidate's real work that match it. Plain, direct, confident; no flattery, no cliches such as "I am writing to express my interest" or "I am excited/thrilled/passionate", no placeholders.`;
 
 export async function tailor(cfg, base, job) {
-  const t = await ask({
+  const free = cfg.llm.provider !== 'anthropic';
+  const t = free ? localTailor(base, job) : await ask({
     cfg, schema: TailorSchema, system: SYSTEM,
     cached: [{ type: 'text', text: `CANDIDATE RESUME (JSON; "index" refers to positions in the experience and projects arrays):\n${JSON.stringify(base)}` }],
     content: `JOB\nCompany: ${job.company}\nTitle: ${job.title}\nLocation: ${job.location}\n\nJOB DESCRIPTION\n${job.description.slice(0, 24000)}`,
   });
   const merged = mergeTailored(base, t);
-  const cover = checkCoverLetter(t.cover_letter_paragraphs, base, { ...job, jdKeywordsLacking: merged.score.missing });
+  const cover = cfg.cover_letter === false ? { ok: false, reason: 'cover letters are turned off' }
+    : checkCoverLetter(t.cover_letter_paragraphs, base, { ...job, jdKeywordsLacking: merged.score.missing }, free ? 70 : 120);
   return { ...merged, cover };
 }
 

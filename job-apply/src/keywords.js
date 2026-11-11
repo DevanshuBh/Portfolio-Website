@@ -9,7 +9,7 @@ const ALIASES = [
   ['kubernetes', 'k8s'], ['amazon web services', 'aws'], ['google cloud platform', 'google cloud', 'gcp'], ['ci/cd', 'cicd', 'ci cd', 'continuous integration'],
   ['rest', 'restful', 'rest api', 'rest apis', 'restful apis'], ['spring boot', 'springboot'], ['c++', 'cpp'], ['c#', 'csharp'],
   ['machine learning', 'ml'], ['object-oriented programming', 'object oriented programming', 'oop', 'oops'], ['data structures and algorithms', 'dsa'],
-  ['html', 'html5'], ['css', 'css3'], ['tailwind', 'tailwind css', 'tailwindcss'], ['three.js', 'threejs'], ['microservices', 'microservice'],
+  ['html', 'html5'], ['css', 'css3'], ['tailwind', 'tailwind css', 'tailwindcss'], ['three.js', 'threejs'], ['microservices', 'microservice'], ['payments', 'payment'], ['algorithms', 'algorithm'], ['data pipelines', 'data pipeline'],
 ];
 
 function forms(term) {

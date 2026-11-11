@@ -40,6 +40,7 @@ const GH = {
     { id: 106, title: 'Software Developer II', location: { name: 'Pune, India' }, content: 'short', first_published: day(5) },
     { id: 107, title: 'Frontend Developer', location: { name: 'Pune, India' }, content: longJd(1), first_published: day(9) },
   ] },
+  umbrellahq: { name: 'Umbrella HQ', jobs: [{ id: 9, title: 'Software Engineer', location: { name: 'India' }, content: longJd(1) }] },
   box: { name: 'Boxed Wholesale', jobs: [{ id: 1, title: 'Software Engineer', location: { name: 'India' }, content: longJd(1) }] },
 };
 let down = false;
@@ -53,6 +54,12 @@ globalThis.__jobApplyFetch = async (url) => {
   if (u.host === 'boards-api.greenhouse.io' && m) return GH[m[1]] ? json(m[2] ? { jobs: GH[m[1]].jobs } : { name: GH[m[1]].name }) : json({ status: 404 }, 404);
   if (u.host === 'api.lever.co' && u.pathname === '/v0/postings/hooli') return json([{ id: 'abc-1', text: 'Backend Engineer', categories: { location: 'Mumbai, India', team: 'Core' }, hostedUrl: 'https://jobs.lever.co/hooli/abc-1', descriptionPlain: longJd(1), createdAt: Date.now() - 86400000 }]);
   if (u.host === 'api.smartrecruiters.com') return json({ totalFound: 0, content: [] });
+  const html = (body) => new Response(body, { status: 200, headers: { 'content-type': 'text/html' } });
+  if (u.host === 'umbrella.com' && u.pathname === '/') return html('<title>Umbrella - Home</title><a href="/about">About</a> <a href="/careers?ref=nav&amp;x=1">Careers</a>');
+  if (u.host === 'umbrella.com' && u.pathname === '/careers') return html('<h1>Work at Umbrella</h1><script src="https:\\/\\/boards.greenhouse.io\\/embed\\/job_board\\/js?for=umbrellahq"></script>');
+  if (u.host === 'soylent.com' && u.pathname === '/') return html('<h1>Soylent</h1><a href="https://soylent.com/join-us">Join us</a>');
+  if (u.host === 'soylent.com' && u.pathname === '/join-us') return html('<h1>Soylent jobs</h1><p>Email your CV to us.</p>');
+  if (u.host === 'box.com') return html('<h1>This domain is for sale</h1>');
   return json({ error: 'not found' }, 404);
 };
 
@@ -60,7 +67,7 @@ const cfg = {
   skip_tiers: [], tiers: [], location_priorities: [], min_match_score: null, resume_max_pages: 1,
   search: { includeRe: [/software (engineer|developer)/i, /(front|back)[- ]?end (engineer|developer)/i], excludeRe: [/\b(senior|staff|lead)\b/i], use_resume_titles: true,
     locations: ['India'], allow_remote: true, keep_unknown_location: false, max_years_required: 3, posted_within_days: 45, max_jobs_per_company: 2 },
-  llm: { model: 'claude-opus-5-5', effort: 'medium' },
+  cover_letter: true, llm: { provider: 'none', model: 'claude-opus-5-5', effort: 'medium' },
   apply: { auto_submit: true, allow_llm_answers_in_auto: false, max_per_run: 25, delay_seconds: [0, 0], headless: true, captcha_wait_seconds: 2 },
 };
 
@@ -118,6 +125,18 @@ test('discover: verifies the board really belongs to the company, survives outag
   fs.writeFileSync(path.join(DATA, 'careers_urls.csv'), 'company,careers_url,why\n');
   await discover([companies[2]], { refresh: true });
   assert.equal(loadBoards().initech.status, 'unresolved');
+});
+
+test('discover: falls back to the company website and follows its careers page for free', async () => {
+  const extra = [company('Umbrella Corp'), company('Soylent')];
+  await discover(extra, {});
+  const b = loadBoards();
+  assert.deepEqual([b.umbrella.status, b.umbrella.ats, b.umbrella.board, b.umbrella.confidence], ['resolved', 'greenhouse', 'umbrellahq', 'linked from careers page']);
+  assert.match(b.umbrella.careers_url, /umbrella\.com\/careers/);
+  assert.deepEqual([b.soylent.status, b.soylent.careers_url], ['unsupported_site', 'https://soylent.com/join-us']);
+  assert.equal(b.box.status, 'unsupported_site', 'set earlier by the user link; a for-sale domain alone would not count');
+  await discover([company('Box')], { refresh: true });
+  assert.equal(loadBoards().box.status, 'unresolved', 'a site that never names the company is ignored');
 });
 
 test('search: keeps only relevant, reachable, fresh jobs and is safe to repeat', async () => {

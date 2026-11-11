@@ -7,6 +7,8 @@ Runs on your own computer. Given your Excel list of companies and your resume, i
 3. writes a tailored resume (PDF) and a cover letter for each job,
 4. opens each application form in a browser, fills it in from your profile, attaches the documents, and submits it — after your confirmation, or on its own if you turn that on.
 
+**It is free to run.** By default nothing is sent to any paid service: no API key, no subscription. An optional paid mode exists (see "Free mode and paid mode") and is off unless you turn it on.
+
 Everything personal (company list, resume, profile, generated documents, browser session, tracker) stays in `data/`, `config.yaml` and `profile.yaml`, which git ignores.
 
 ## What it can and cannot do
@@ -18,7 +20,14 @@ Everything personal (company list, resume, profile, generated documents, browser
 | Workday | yes, once you give its careers URL | no (needs an account and a multi-step wizard) | you |
 | Anything else (a company's own portal, Taleo, SuccessFactors, iCIMS, …) | no | no | you |
 
-Your spreadsheet has company names but no careers links, so the tool guesses each company's board from its name and checks that the board really is that company's. Many large companies will not be found this way. They are listed in `data/careers_urls.csv`; paste the careers URL next to the name and run `discover` again.
+**How it gets from your Excel to a careers page.** For every company in the sheet it tries, in this order:
+
+1. a `Careers URL` column in the Excel, if you add one (any of: "Careers URL", "Career Page", "URL", "Website", "Link");
+2. a link you put in `data/careers_urls.csv`;
+3. the company's name on each supported job-board system, accepted only when the board says it belongs to that company;
+4. the company's own website (`name.com`, `.io`, `.in`, …): it opens the site, follows its Careers link, and picks up whichever job-board system that page uses.
+
+Your current sheet has names only, so steps 3 and 4 do the work. Companies whose careers page is found but runs on an unsupported system are listed in the tracker's Companies sheet with the link, for you to apply by hand. Companies it cannot find at all are listed in `data/careers_urls.csv`; paste the careers URL next to the name and run `discover` again.
 
 It never solves CAPTCHAs, creates accounts, or logs in for you. When a CAPTCHA appears it waits for you to solve it in the browser window.
 
@@ -26,7 +35,7 @@ It never solves CAPTCHAs, creates accounts, or logs in for you. When a CAPTCHA a
 
 ## Setup (once)
 
-You need [Node.js 20 or newer](https://nodejs.org) and an [Anthropic API key](https://console.anthropic.com/) (used to tailor the resume, write cover letters, and answer open form questions).
+You need [Node.js 20 or newer](https://nodejs.org) (free). Nothing else.
 
 ```bash
 cd job-apply
@@ -50,16 +59,9 @@ cp profile.example.yaml profile.yaml
 
 Then:
 
-- Put your Excel file at `data/companies.xlsx` and your resume at `data/resume.pdf` (or change the paths in `config.yaml`).
+- Put your Excel file at `data/companies.xlsx` and your resume data at `data/resume.json` (see `init` below).
 - Fill in `profile.yaml`. These are the facts typed into forms: name, email, phone, notice period, work authorisation and so on. Anything you leave empty is never guessed.
 - Review `config.yaml`: which job titles to include and exclude, which locations, the maximum years of experience a job may ask for, and which tiers of your spreadsheet to process. By default rows marked "Low Fit" are skipped.
-- Set your API key in the terminal you will run the tool from:
-
-```bash
-export ANTHROPIC_API_KEY=sk-ant-...
-```
-
-(Windows PowerShell: `$env:ANTHROPIC_API_KEY="sk-ant-..."`)
 
 Check the setup:
 
@@ -73,13 +75,13 @@ node src/cli.js doctor
 node src/cli.js init
 ```
 
-Reads your resume PDF into `data/resume.json`. **Open that file and check every line against your resume.** It is the only source the tool tailors from, so a mistake here ends up in every application.
+Creates `data/resume.json` from a template for you to fill in with your resume's content (skip this if you already have the file). **Check every line against your resume.** It is the only source the tool builds documents from, so a mistake here ends up in every application.
 
 ```bash
 node src/cli.js discover
 ```
 
-Finds the job boards. With ~900 companies this takes around half an hour the first time; it saves as it goes and resumes if interrupted.
+Finds the careers pages and job boards. With ~900 companies expect this to take an hour or more the first time; it saves as it goes and resumes if interrupted.
 
 ```bash
 node src/cli.js search
@@ -115,7 +117,7 @@ Submits without asking — but only when nothing is in doubt (see below). Everyt
 
 ## Safeguards
 
-**Against invented resume content.** Employers, titles, dates, education and contact details are copied from your original resume and cannot be changed by tailoring. A rewritten line is discarded, and your original wording kept, if it contains a number that is not in your resume, a keyword from the job description that your resume lacks, or a technology or proper noun that does not appear in your resume. Skills can be reordered and dropped but not added. The tracker lists the job's keywords you do not have.
+**Against invented resume content.** In free mode the tailored resume contains exactly the same lines as your original, re-ordered so the skills, bullets and projects the job asks for come first; nothing new is written. In paid mode, employers, titles, dates, education and contact details still cannot be changed, and a rewritten line is discarded if it contains a number, a job-description keyword, or a technology that is not in your resume. The tracker lists the job's keywords you do not have.
 
 **About the "ATS score".** The tracker shows the share of the job description's keywords found in your resume, before and after tailoring. That is how keyword screening works, but it is an estimate; no employer's system reports a universal score, and the tool will not raise it by adding skills you do not have.
 
@@ -123,7 +125,7 @@ Submits without asking — but only when nothing is in doubt (see below). Everyt
 
 - A job is never applied to twice: its status is saved before the submit button is pressed. If a run dies mid-submit, or the site shows no confirmation, the job is marked `unconfirmed` and is not retried — check your email first.
 - The same role re-posted under a new id is recognised and skipped.
-- In `--auto` mode an application is sent only if all of these hold: every required question was answered from your profile, no answer was written by the model (unless you allow it in `config.yaml`), the resume was attached, the page mentions the company's name, the board was verified as that company's, a real submit button was found, and there is no CAPTCHA on the page.
+- In `--auto` mode an application is sent only if all of these hold: every required question was answered from your profile, no answer was written by a model (paid mode only, unless you allow it in `config.yaml`), the resume was attached, the page mentions the company's name, the board was verified as that company's, a real submit button was found, and there is no CAPTCHA on the page.
 - Required questions the tool cannot answer are left empty, never guessed. Voluntary demographic questions are answered "decline" unless you filled them in your profile. Marketing opt-ins are left unticked.
 - Postings that have closed are detected and marked `closed`.
 
@@ -142,9 +144,20 @@ Submits without asking — but only when nothing is in doubt (see below). Everyt
 
 To retry a job, change its `status` back to `prepared` in `data/state.json`.
 
-## Cost
+## Free mode and paid mode
 
-Each prepared job is one model request (resume plus cover letter), and each application with open questions is one more. The model is set in `config.yaml` (`llm.model`); `claude-sonnet-5-5` and `claude-haiku-5-5` are cheaper than the default `claude-opus-5-5`. Use `--limit` to control how many jobs a run handles.
+`llm.provider` in `config.yaml` decides this. The default is `none`.
+
+| | `none` (free, default) | `anthropic` (paid) |
+|---|---|---|
+| Cost | Nothing | Billed to your Anthropic API key, per job |
+| Resume | Your own lines, re-ordered per job | Bullets also rephrased in the job's wording |
+| Keyword match | Unchanged by tailoring (shown so you can see the gap) | Can rise where your real experience matches |
+| Cover letter | Assembled from your own resume lines; skipped when the job and your resume barely overlap | Written for the specific job |
+| Open form questions ("Why do you want to work here?") | Left for you, or answered from `answers:` in `profile.yaml` | Drafted from your resume, flagged for review |
+| `init` | You fill in `data/resume.json` | Reads your resume PDF |
+
+In free mode, put the questions you see repeatedly into `answers:` in `profile.yaml`; each one you add is one fewer stop. Set `cover_letter: false` in `config.yaml` if you would rather not send the assembled letter.
 
 ## Good to know
 

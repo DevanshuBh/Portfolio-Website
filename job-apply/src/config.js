@@ -22,7 +22,8 @@ const DEFAULTS = {
     posted_within_days: null,
     max_jobs_per_company: 2,
   },
-  llm: { model: 'claude-opus-5-5', effort: 'medium' },
+  cover_letter: true,
+  llm: { provider: 'none', model: 'claude-opus-5-5', effort: 'medium' },
   apply: {
     auto_submit: false,
     allow_llm_answers_in_auto: false,
@@ -72,6 +73,7 @@ export function loadConfig(file = path.join(ROOT, 'config.yaml')) {
   if (!Array.isArray(d) || d.length !== 2 || !(d[0] >= 0) || !(d[1] >= d[0])) {
     throw new Error('config: apply.delay_seconds must be [min, max] with 0 <= min <= max');
   }
+  if (!['none', 'anthropic'].includes(cfg.llm.provider)) throw new Error('config: llm.provider must be "none" (free) or "anthropic" (paid)');
   for (const k of ['tiers', 'skip_tiers', 'location_priorities']) {
     if (!Array.isArray(cfg[k])) throw new Error(`config: ${k} must be a list`);
   }
