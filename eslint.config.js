@@ -6,7 +6,7 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 import reactThree from '@react-three/eslint-plugin'
 
 export default [
-  { ignores: ['dist'] },
+  { ignores: ['dist', 'job-apply'] },
   {
     files: ['**/*.{js,jsx}'],
     languageOptions: {

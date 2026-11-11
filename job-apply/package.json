@@ -1,0 +1,25 @@
+{
+  "name": "job-apply",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Finds matching openings at a list of companies, tailors a resume and cover letter per job, and fills in the application forms.",
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "job-apply": "src/cli.js"
+  },
+  "scripts": {
+    "start": "node src/cli.js",
+    "test": "node --test test/",
+    "postinstall": "playwright install chromium || echo \"Run: npx playwright install chromium\""
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.7.0",
+    "exceljs": "^4.4.0",
+    "playwright": "^1.65.0",
+    "yaml": "^2.9.1",
+    "zod": "^4.6.7"
+  }
+}

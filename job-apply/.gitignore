@@ -1,0 +1,7 @@
+node_modules/
+# Everything personal lives in data/ and never gets committed:
+# resume, company list, profile, generated documents, browser session, tracker.
+data/
+config.yaml
+profile.yaml
+.env
