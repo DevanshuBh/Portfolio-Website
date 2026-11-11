@@ -24,6 +24,8 @@ export function ruleAnswer(field, ctx) {
   const { profile: p, job, docs } = ctx;
   const q = ` ${norm(field.label)} `;
   const has = (re) => re.test(q);
+  // pv: a profile field. When it is empty, report which one, so the answer you give can be saved there.
+  const pv = (key) => (String(p[key] ?? '').trim() ? { value: String(p[key]).trim(), source: 'profile' } : { need: key });
   const val = (v, source = 'profile') => (v !== undefined && v !== null && String(v).trim() !== '' ? { value: String(v).trim(), source } : null);
 
   if (field.kind === 'file') {
@@ -55,44 +57,44 @@ export function ruleAnswer(field, ctx) {
     return field.required ? null : { skip: 'voluntary question left blank' };
   }
 
-  if (has(/sponsor/)) return val(p.requires_sponsorship);
+  if (has(/sponsor/)) return pv('requires_sponsorship');
   if (has(/authori[sz]ed to work|legally (authori[sz]ed|eligible|permitted|entitled|able)|right to work|eligible to work|work (permit|authori[sz]ation|eligibility)|permitted to work/)) {
     const asked = countryIn(field.label) ?? countryIn(job.location);
     if (asked && p.authorized_countries.length) return { value: p.authorized_countries.some((c) => sameCountry(c, asked)) ? 'Yes' : 'No', source: 'profile' };
-    return field.kind === 'text' || field.kind === 'textarea' ? val(p.work_authorization) : null;
+    return field.kind === 'text' || field.kind === 'textarea' ? pv('work_authorization') : null;
   }
-  if (has(/relocat/)) return val(p.willing_to_relocate);
-  if (has(/how did you (hear|find|learn)|where did you (hear|find)|source of application|referral source/)) return val(p.how_did_you_hear);
-  if (has(/notice period|serving notice|notice (required|duration)/)) return val(p.notice_period);
-  if (has(/(expected|desired|expectation|target|asking).{0,25}(ctc|salary|compensation|pay)|(salary|compensation|pay|ctc).{0,15}(expectation|expected|requirement)/)) return val(p.expected_ctc);
-  if (has(/(current|present|last drawn).{0,20}(ctc|salary|compensation)/)) return val(p.current_ctc);
-  if (has(/(start date|when (can|could) you start|earliest.{0,20}(start|join)|available to (start|join)|date of joining|joining date)/)) return val(p.earliest_start_date);
-  if (has(/years.{0,30}experience|experience.{0,20}(in )?years|total experience|overall experience/) && !has(/ with | in [a-z]+ (development|programming)|using /)) return val(p.years_of_experience);
+  if (has(/relocat/)) return pv('willing_to_relocate');
+  if (has(/how did you (hear|find|learn)|where did you (hear|find)|source of application|referral source/)) return pv('how_did_you_hear');
+  if (has(/notice period|serving notice|notice (required|duration)/)) return pv('notice_period');
+  if (has(/(expected|desired|expectation|target|asking).{0,25}(ctc|salary|compensation|pay)|(salary|compensation|pay|ctc).{0,15}(expectation|expected|requirement)/)) return pv('expected_ctc');
+  if (has(/(current|present|last drawn).{0,20}(ctc|salary|compensation)/)) return pv('current_ctc');
+  if (has(/(start date|when (can|could) you start|earliest.{0,20}(start|join)|available to (start|join)|date of joining|joining date)/)) return pv('earliest_start_date');
+  if (has(/years.{0,30}experience|experience.{0,20}(in )?years|total experience|overall experience/) && !has(/ with | in [a-z]+ (development|programming)|using /)) return pv('years_of_experience');
 
-  if (has(/linkedin/)) return val(p.linkedin);
-  if (has(/github|git hub/)) return val(p.github);
-  if (has(/portfolio|personal (site|website)|website|other url|blog/)) return val(p.portfolio);
+  if (has(/linkedin/)) return pv('linkedin');
+  if (has(/github|git hub/)) return pv('github');
+  if (has(/portfolio|personal (site|website)|website|other url|blog/)) return pv('portfolio');
   if (has(/twitter|\bx profile\b|facebook|instagram/)) return { skip: 'social profile not provided' };
 
-  if (has(/first name|given name|forename/)) return val(p.first_name);
-  if (has(/last name|surname|family name/)) return val(p.last_name);
+  if (has(/first name|given name|forename/)) return pv('first_name');
+  if (has(/last name|surname|family name/)) return pv('last_name');
   if (has(/preferred (first )?name|nickname|goes by/)) return val(p.preferred_name || p.first_name);
   if (has(/middle name/)) return { skip: 'middle name not provided' };
   if (has(/full name|legal name|your name|^ name $|candidate name|applicant name/) || field.autocomplete === 'name') return val(`${p.first_name} ${p.last_name}`.trim());
-  if (has(/e ?mail/) || field.inputType === 'email') return val(p.email);
-  if (has(/phone|mobile|telephone|contact number|whatsapp number/) || field.inputType === 'tel') return has(/country code|extension/) ? null : val(p.phone);
+  if (has(/e ?mail/) || field.inputType === 'email') return pv('email');
+  if (has(/phone|mobile|telephone|contact number|whatsapp number/) || field.inputType === 'tel') return has(/country code|extension/) ? null : pv('phone');
 
-  if (has(/current (company|employer|organi[sz]ation)|present (company|employer)|^ (company|employer|org|organi[sz]ation) $|company name/)) return val(p.current_company);
-  if (has(/current (title|role|position|designation)|job title|^ (title|designation) $/)) return val(p.current_title);
-  if (has(/university|college|school|institution|alma mater/)) return val(p.university);
-  if (has(/graduat.{0,15}(year|date)|year of (graduation|passing)/)) return val(p.graduation_year);
-  if (has(/degree|highest (level of )?(education|qualification)|education level|qualification/)) return val(p.highest_education);
+  if (has(/current (company|employer|organi[sz]ation)|present (company|employer)|^ (company|employer|org|organi[sz]ation) $|company name/)) return pv('current_company');
+  if (has(/current (title|role|position|designation)|job title|^ (title|designation) $/)) return pv('current_title');
+  if (has(/university|college|school|institution|alma mater/)) return pv('university');
+  if (has(/graduat.{0,15}(year|date)|year of (graduation|passing)/)) return pv('graduation_year');
+  if (has(/degree|highest (level of )?(education|qualification)|education level|qualification/)) return pv('highest_education');
 
-  if (has(/postal|zip|pin ?code|postcode/)) return val(p.postal_code);
-  if (has(/street|address line|^ address $|mailing address|home address/)) return val(p.address);
-  if (has(/\bstate\b|province|region/) && !has(/united states/)) return val(p.state);
-  if (has(/\bcountry\b/) && !has(/country code/)) return val(p.country);
-  if (has(/\bcity\b|town/)) return val(p.city);
+  if (has(/postal|zip|pin ?code|postcode/)) return pv('postal_code');
+  if (has(/street|address line|^ address $|mailing address|home address/)) return pv('address');
+  if (has(/\bstate\b|province|region/) && !has(/united states/)) return pv('state');
+  if (has(/\bcountry\b/) && !has(/country code/)) return pv('country');
+  if (has(/\bcity\b|town/)) return pv('city');
   if (has(/current location|your location|^ location $|where are you (based|located)|location city|residence/)) return val([p.city, p.country].filter(Boolean).join(', '));
   return null;
 }

@@ -4,13 +4,20 @@ import { norm, sleep } from '../util.js';
 
 const loc = (frame, id) => frame.locator(`[data-ja-id="${id}"]`);
 
+const notSearchBox = (f) => !(f.kind === 'text' && /search|keyword/i.test(f.label));
+
+/** The form's current contents (after anything you typed or changed in the browser). */
+export async function readForm(frame) {
+  return (await frame.evaluate(collectFields)).filter(notSearchBox);
+}
+
 /** Choose the frame that actually holds the application form (some sites embed it in an iframe). */
 export async function findFormFrame(page) {
   let best = null;
   for (const frame of page.frames()) {
     let fields;
     try { fields = await frame.evaluate(collectFields); } catch { continue; }
-    const real = fields.filter((f) => !(f.kind === 'text' && /search|keyword/i.test(f.label)));
+    const real = fields.filter(notSearchBox);
     if (!best || real.length > best.fields.length) best = { frame, fields: real };
   }
   return best ?? { frame: page.mainFrame(), fields: [] };
@@ -52,7 +59,7 @@ async function fillCombobox(frame, field, value, option) {
   return false;
 }
 
-async function applyValue(frame, field, value) {
+export async function applyValue(frame, field, value) {
   switch (field.kind) {
     case 'file': await loc(frame, field.id).setInputFiles(value); return true;
     case 'text': case 'textarea': {
@@ -95,7 +102,7 @@ async function applyValue(frame, field, value) {
 
 // A native <select> always has some value (its first option), so it never counts as answered here.
 const alreadyFilled = (f) => (f.kind === 'text' || f.kind === 'textarea' || f.kind === 'combobox') ? Boolean(String(f.value ?? '').trim())
-  : (f.kind === 'radio' || f.kind === 'checkbox') ? f.options.some((o) => o.checked) : false;
+  : (f.kind === 'radio' || f.kind === 'checkbox') ? f.options.some((o) => o.checked) : f.kind === 'file' ? (f.files?.length ?? 0) > 0 : false;
 
 /**
  * Fill the whole form. Returns one report line per question:
@@ -112,9 +119,10 @@ export async function fillForm(page, ctx, { useLlm = true } = {}) {
   const pending = [];
   const plan = new Map();
   for (const f of fields) {
-    if (alreadyFilled(f) && f.kind !== 'file') { report.push({ ...brief(f), status: 'kept', source: 'already on the form' }); continue; }
+    if (alreadyFilled(f)) { report.push({ ...brief(f), field: f, status: 'kept', source: 'already on the form' }); continue; }
     const a = ruleAnswer(f, ctx);
-    if (a?.skip) { report.push({ ...brief(f), status: f.required ? 'unresolved' : 'skipped', source: a.skip }); continue; }
+    if (a?.skip) { report.push({ ...brief(f), field: f, status: f.required ? 'unresolved' : 'skipped', askable: Boolean(f.required), source: a.skip }); continue; }
+    if (a?.need) { f.need = a.need; pending.push(f); continue; }
     if (a) { plan.set(f.id, a); continue; }
     if (f.kind === 'file' || !f.label.trim()) { report.push(noAnswer(f, 'no answer in profile')); continue; }
     pending.push(f);
@@ -134,8 +142,8 @@ export async function fillForm(page, ctx, { useLlm = true } = {}) {
     let ok = false, error = '';
     try { ok = await applyValue(frame, f, a.value); } catch (err) { error = String(err.message ?? err).split('\n')[0]; }
     const shown = f.kind === 'file' ? String(a.value).split(/[\\/]/).pop() : a.value === true ? 'ticked' : String(a.value);
-    if (ok) report.push({ ...brief(f), status: 'filled', source: a.source, value: shown });
-    else report.push({ ...brief(f), status: f.required ? 'unresolved' : 'skipped', source: error || `"${shown}" does not fit this field's options/format`, value: shown });
+    if (ok) report.push({ ...brief(f), field: f, status: 'filled', source: a.source, value: shown });
+    else report.push({ ...brief(f), field: f, need: f.need, askable: true, status: f.required ? 'unresolved' : 'skipped', source: error || `"${shown}" does not fit this field's options/format`, value: shown });
   }
   return { frame, report, fields };
 }
@@ -143,7 +151,7 @@ export async function fillForm(page, ctx, { useLlm = true } = {}) {
 // A dropdown that already shows a real choice is left as the site set it rather than reported as a gap.
 const noAnswer = (f, why) => (f.kind === 'select' && String(f.value ?? '').trim()
   ? { ...brief(f), status: 'kept', source: 'left at the form default' }
-  : { ...brief(f), status: f.required ? 'unresolved' : 'skipped', source: why });
+  : { ...brief(f), field: f, need: f.need, askable: true, status: f.required ? 'unresolved' : 'skipped', source: why });
 
 const brief = (f) => ({ label: f.label.replace(/\s+/g, ' ').slice(0, 110) || `(unlabelled ${f.kind})`, kind: f.kind, required: f.required });
 

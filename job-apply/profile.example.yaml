@@ -1,6 +1,6 @@
-# Copy to profile.yaml and fill in. These are the facts the tool types into application forms.
-# Anything left empty is never guessed: a required question without an answer stops that application
-# and marks it "needs_manual".
+# Copy to profile.yaml. These are the facts the tool types into application forms.
+# Only first_name, last_name, email and phone are needed to start. Anything left empty is never guessed:
+# when a form asks for it, the tool asks you in the terminal and saves your answer here.
 
 first_name: ""
 last_name: ""
@@ -41,8 +41,8 @@ pronouns: ""
 # Tick required "I agree to the privacy policy / consent to data processing" boxes.
 accept_privacy_consent: true
 
-# Your own answers to recurring questions. `match` is a case-insensitive regular expression tested
-# against the question text; the first match wins and is used verbatim. Checked before anything else.
+# Your own answers to recurring questions. The tool adds to this list when you tell it to remember an answer.
+# `match` is a case-insensitive regular expression tested against the question text; the first match wins.
 answers:
   # - match: "why (do you want|are you interested)"
   #   answer: "..."

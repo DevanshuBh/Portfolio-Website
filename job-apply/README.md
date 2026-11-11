@@ -1,41 +1,26 @@
 # job-apply
 
-Runs on your own computer. Given your Excel list of companies and your resume, it:
+You give it your resume and your Excel list of companies. It then goes through the companies one by one and, for each job based in India that fits you:
 
-1. finds each company's public job board,
-2. pulls the current openings and keeps the ones that fit your role, location and experience settings,
-3. writes a tailored resume (PDF) and a cover letter for each job,
-4. opens each application form in a browser, fills it in from your profile, attaches the documents, and submits it — after your confirmation, or on its own if you turn that on.
+1. opens the application form in a browser window,
+2. fills in everything it knows (from your profile and a resume tailored to that job),
+3. **asks you in the terminal** for anything it does not know, and types your answer into the form,
+4. **shows you everything on the form and asks whether it is all correct**,
+5. submits only when you say yes (or you submit it yourself), then moves on to the next job.
 
-**It is free to run.** By default nothing is sent to any paid service: no API key, no subscription. An optional paid mode exists (see "Free mode and paid mode") and is off unless you turn it on.
+It never submits anything without your confirmation. It is free to run: nothing is sent to any paid service (see "Free mode and paid mode").
 
-Everything personal (company list, resume, profile, generated documents, browser session, tracker) stays in `data/`, `config.yaml` and `profile.yaml`, which git ignores.
+## How it reaches every company
 
-## What it can and cannot do
+**Companies on a job board it can search** (Greenhouse, Lever, Ashby, SmartRecruiters, Workable, Recruitee, Workday). It finds the board, lists the openings, and keeps those whose title and location match your settings (by default software roles in India, up to 3 years of experience). For each one it opens the form and goes through steps 2–5 above.
 
-| Company's hiring system | Find jobs | Fill the form | Submit |
-|---|---|---|---|
-| Greenhouse, Lever, Ashby | yes | yes | yes |
-| SmartRecruiters, Workable, Recruitee | yes | yes, where the form is a single page | you press submit |
-| Workday | yes, once you give its careers URL | no (needs an account and a multi-step wizard) | you |
-| Anything else (a company's own portal, Taleo, SuccessFactors, iCIMS, …) | no | no | you |
+**All other companies** (their own careers portal, or a board it cannot search). After the job-board jobs, it opens each company's careers page. If it knows no careers page, it opens a web search for "<company> careers India". You open a job that suits you and press Enter. The tool then prepares a resume for that job and goes through steps 2–5 with you on whatever page is open. Multi-step forms work the same way: you click Next in the browser and press Enter, and it fills the next page.
 
-**How it gets from your Excel to a careers page.** For every company in the sheet it tries, in this order:
-
-1. a `Careers URL` column in the Excel, if you add one (any of: "Careers URL", "Career Page", "URL", "Website", "Link");
-2. a link you put in `data/careers_urls.csv`;
-3. the company's name on each supported job-board system, accepted only when the board says it belongs to that company;
-4. the company's own website (`name.com`, `.io`, `.in`, …): it opens the site, follows its Careers link, and picks up whichever job-board system that page uses.
-
-Your current sheet has names only, so steps 3 and 4 do the work. Companies whose careers page is found but runs on an unsupported system are listed in the tracker's Companies sheet with the link, for you to apply by hand. Companies it cannot find at all are listed in `data/careers_urls.csv`; paste the careers URL next to the name and run `discover` again.
-
-It never solves CAPTCHAs, creates accounts, or logs in for you. When a CAPTCHA appears it waits for you to solve it in the browser window.
-
-**Status of testing.** The search, filtering, tailoring checks and form filling are covered by automated tests that run against a mocked job-board API and a local test form. The tool has not yet been run against the live job-board sites. Do your first run with `--dry-run` and then without `--auto`, and watch what it does.
+It does not solve CAPTCHAs, create accounts or log in for you. When a site asks for those, you do them in the browser window and press Enter to carry on.
 
 ## Setup (once)
 
-You need [Node.js 20 or newer](https://nodejs.org) (free). Nothing else.
+You need [Node.js 20 or newer](https://nodejs.org). Nothing else.
 
 ```bash
 cd job-apply
@@ -45,7 +30,7 @@ cd job-apply
 npm install
 ```
 
-Create your settings from the examples:
+Create your settings from the examples (on Windows use `copy` instead of `cp`):
 
 ```bash
 cp config.example.yaml config.yaml
@@ -55,15 +40,13 @@ cp config.example.yaml config.yaml
 cp profile.example.yaml profile.yaml
 ```
 
-(On Windows use `copy` instead of `cp`.)
-
 Then:
 
-- Put your Excel file at `data/companies.xlsx` and your resume data at `data/resume.json` (see `init` below).
-- Fill in `profile.yaml`. These are the facts typed into forms: name, email, phone, notice period, work authorisation and so on. Anything you leave empty is never guessed.
-- Review `config.yaml`: which job titles to include and exclude, which locations, the maximum years of experience a job may ask for, and which tiers of your spreadsheet to process. By default rows marked "Low Fit" are skipped.
+- Make a `data` folder inside `job-apply`. Put your Excel file in it as `data/companies.xlsx`, and your resume data as `data/resume.json`. (Running `node src/cli.js init` creates a template if you need one.) Check every line of `resume.json` against your resume: it is the only source the tool builds your documents from.
+- Fill in at least your name, email and phone in `profile.yaml`. You do not have to fill in the rest now. When a form asks for something that is missing, the tool asks you once and saves your answer in `profile.yaml`, so you are not asked again.
+- Look at the `search:` section of `config.yaml`: which job titles to include and exclude, which Indian cities, and the most years of experience a job may ask for.
 
-Check the setup:
+Check everything is ready:
 
 ```bash
 node src/cli.js doctor
@@ -72,96 +55,108 @@ node src/cli.js doctor
 ## Running it
 
 ```bash
-node src/cli.js init
-```
-
-Creates `data/resume.json` from a template for you to fill in with your resume's content (skip this if you already have the file). **Check every line against your resume.** It is the only source the tool builds documents from, so a mistake here ends up in every application.
-
-```bash
 node src/cli.js discover
 ```
 
-Finds the careers pages and job boards. With ~900 companies expect this to take an hour or more the first time; it saves as it goes and resumes if interrupted.
+Works out where each company posts its jobs. With ~900 companies, expect an hour or more the first time. It saves as it goes: stop it with Ctrl+C any time and run it again to continue.
 
 ```bash
 node src/cli.js search
 ```
 
-Fetches openings and records the relevant ones. Open `data/tracker.xlsx` to see them.
-
-```bash
-node src/cli.js prepare --limit 5
-```
-
-Writes a tailored resume and cover letter per job into `data/out/<company>__<title>__<id>/`. Start with a few and read them before doing the rest.
-
-```bash
-node src/cli.js apply --dry-run --limit 3
-```
-
-Fills the forms, takes a screenshot (`dry-run.png` in the job's folder), submits nothing.
+Collects the matching jobs in India from the job boards it found. You can see them in `data/tracker.xlsx`.
 
 ```bash
 node src/cli.js apply
 ```
 
-Fills each form and then waits for you. Look at the browser window, fix anything, then answer in the terminal: `s` submit now, `d` I submitted it myself, `l` later, `k` skip for good, `q` quit.
+This starts the application loop. A browser window opens. For each job, the terminal shows:
 
-```bash
-node src/cli.js apply --auto
+```
+[3/40] Razorpay - Software Engineer II (Bengaluru, India)
+   Resume: data/out/Razorpay__Software_Engineer_II__1234/Devanshu_Bhargava_Resume.pdf
+
+   Filled 11 field(s) from your profile and documents.
+
+   1 required question(s) I don't have an answer for:
+
+   ? What is your notice period? *   (required)
+     Your answer (text; Enter = leave it to you): 30 days
+     Saved to profile.yaml as notice_period; it will be filled in automatically from now on.
+
+   Here is everything on the form now:
+     First Name *                                        Devanshu
+     Email *                                             bhargavadevanshu10@gmail.com
+     Resume/CV *                                         Devanshu_Bhargava_Resume.pdf
+     What is your notice period? *                       30 days
+     ...
+
+   Are all the details correct?
+   [s] Yes, submit it   [Enter] Check the page again (after you change something, log in, or go to the next step)
+   [d] I submitted it myself   [l] Later   [k] Skip this job   [q] Quit
 ```
 
-Submits without asking — but only when nothing is in doubt (see below). Everything else is marked `needs_manual` for you.
+- If something is wrong, correct it in the browser, then press **Enter**. The form is read again and shown to you.
+- **s** submits, and the tool waits for the site's confirmation. If the site rejects the form (for example, a field it does not like), nothing has been sent; you fix it and choose again.
+- **d** if you pressed the site's own submit button yourself.
+- **l** leaves the job for the next run. **k** skips it for good. **q** stops; you continue later where you left off.
 
-`node src/cli.js run` does discover → search → prepare → apply in one go. `node src/cli.js status` prints counts and rebuilds the tracker. Running any step again is safe: finished work is not repeated.
+Questions with options are shown as a numbered list; type the number. For free-text questions such as "Why do you want to work here?", the tool asks whether to reuse your answer when the same question appears again.
 
-## Safeguards
+After the job-board jobs, it asks whether to start on the remaining companies' careers sites. For each company:
 
-**Against invented resume content.** In free mode the tailored resume contains exactly the same lines as your original, re-ordered so the skills, bullets and projects the job asks for come first; nothing new is written. In paid mode, employers, titles, dates, education and contact details still cannot be changed, and a rewritten line is discarded if it contains a number, a job-description keyword, or a technology that is not in your resume. The tracker lists the job's keywords you do not have.
+```
+[company 12/520] Infosys (India)
+   Careers page: https://career.infosys.com/...
+   Find a job based in India that suits you and open it in the browser, then press Enter.
+   [Enter] I have opened a job   [n] No suitable job here, next company   [l] Later   [q] Quit
+```
 
-**About the "ATS score".** The tracker shows the share of the job description's keywords found in your resume, before and after tailoring. That is how keyword screening works, but it is an estimate; no employer's system reports a universal score, and the tool will not raise it by adding skills you do not have.
+Useful options:
 
-**Against wrong or duplicate applications.**
+- `node src/cli.js apply --only Razorpay` limits the run to one company.
+- `--no-sites` does the job-board jobs only.
+- `--limit 5` handles at most 5 job-board jobs.
+- `node src/cli.js apply --dry-run --limit 3` fills a few forms, saves a screenshot of each (`dry-run.png` in the job's folder), and neither asks nor submits anything. It is a safe way to see how it behaves.
+- `node src/cli.js prepare` writes all the tailored resumes in advance, so you can read them before applying (otherwise each one is made just before its form).
+- `node src/cli.js status` shows counts and rebuilds `data/tracker.xlsx`.
 
-- A job is never applied to twice: its status is saved before the submit button is pressed. If a run dies mid-submit, or the site shows no confirmation, the job is marked `unconfirmed` and is not retried — check your email first.
-- The same role re-posted under a new id is recognised and skipped.
-- In `--auto` mode an application is sent only if all of these hold: every required question was answered from your profile, no answer was written by a model (paid mode only, unless you allow it in `config.yaml`), the resume was attached, the page mentions the company's name, the board was verified as that company's, a real submit button was found, and there is no CAPTCHA on the page.
-- Required questions the tool cannot answer are left empty, never guessed. Voluntary demographic questions are answered "decline" unless you filled them in your profile. Marketing opt-ins are left unticked.
-- Postings that have closed are detected and marked `closed`.
+Run `search` and `apply` again whenever you like. Jobs you have handled are not offered again, and the same role re-posted under a new link is recognised.
+
+## Your documents
+
+For each job it writes a one-page PDF resume (and, when there is enough overlap with the job, a cover letter) in `data/out/<company>__<title>__<id>/`.
+
+- **Free mode** uses exactly the lines of your resume, re-ordered so the skills, bullets and projects this job asks for come first. Nothing is reworded and nothing is added. The cover letter is assembled from your own resume lines. Set `cover_letter: false` in `config.yaml` if you would rather not send it.
+- The tracker shows the share of the job's keywords your resume contains, and lists the ones it lacks. This is an estimate of how keyword screening sees you, not a score any employer reports.
+
+## Free mode and paid mode
+
+`llm.provider` in `config.yaml` decides this. The default is `none`, which is free.
+
+| | `none` (free, default) | `anthropic` (paid) |
+|---|---|---|
+| Cost | Nothing | Billed per job to your Anthropic API key (set `ANTHROPIC_API_KEY`) |
+| Resume | Your own lines, re-ordered per job | Bullets also rephrased in the job's wording; nothing invented |
+| Cover letter | Assembled from your resume lines | Written for the job |
+| Questions it cannot answer from your profile | Asked to you | Drafted by the model and shown to you for checking; anything uncertain is asked to you |
 
 ## Statuses in the tracker
 
 | Status | Meaning |
 |---|---|
-| `new` | Relevant job found; documents not written yet |
-| `prepared` | Resume and cover letter ready; not applied yet |
+| `new` / `prepared` | Found, not applied yet |
 | `submitted` | Sent (confirmed by the site, or by you) |
-| `needs_manual` | Needs you; the Note column says why |
-| `unconfirmed` | Submit was pressed but no confirmation was seen. Check your email; not retried |
-| `skipped` | Deliberately not applied (too senior, duplicate, or skipped by you) |
-| `closed` | Posting no longer open |
-| `failed` | An error occurred; the Note column has it. Safe to fix and re-run |
-
-To retry a job, change its `status` back to `prepared` in `data/state.json`.
-
-## Free mode and paid mode
-
-`llm.provider` in `config.yaml` decides this. The default is `none`.
-
-| | `none` (free, default) | `anthropic` (paid) |
-|---|---|---|
-| Cost | Nothing | Billed to your Anthropic API key, per job |
-| Resume | Your own lines, re-ordered per job | Bullets also rephrased in the job's wording |
-| Keyword match | Unchanged by tailoring (shown so you can see the gap) | Can rise where your real experience matches |
-| Cover letter | Assembled from your own resume lines; skipped when the job and your resume barely overlap | Written for the specific job |
-| Open form questions ("Why do you want to work here?") | Left for you, or answered from `answers:` in `profile.yaml` | Drafted from your resume, flagged for review |
-| `init` | You fill in `data/resume.json` | Reads your resume PDF |
-
-In free mode, put the questions you see repeatedly into `answers:` in `profile.yaml`; each one you add is one fewer stop. Set `cover_letter: false` in `config.yaml` if you would rather not send the assembled letter.
+| `needs_manual` | You chose "later" |
+| `unconfirmed` | Submit was pressed but no confirmation appeared, and you were not sure it went through. Check your email; it is not offered again |
+| `skipped` | You skipped it, it was already applied to, or it asks for more experience than your setting allows |
+| `closed` | The posting is no longer open |
+| `failed` | Something went wrong; the Note column says what. It is offered again next run |
 
 ## Good to know
 
-- Job sites' terms often restrict automated applications, and mass identical applications get filtered. Keep the delay between applications (default 25–60 seconds) and the per-run cap.
-- The browser profile in `data/browser-profile` keeps cookies between runs, so a login you complete by hand is remembered.
-- If `tracker.xlsx` is open in Excel when the tool tries to rewrite it, it writes `tracker-<number>.xlsx` instead.
+- The browser window remembers logins between runs (`data/browser-profile`), so a site you signed in to stays signed in.
+- Some careers sites block automated browsers or need an account; on those you fill the form yourself and answer `d`.
+- If `tracker.xlsx` is open in Excel when it is rewritten, the tool writes `tracker-<number>.xlsx` instead.
+- Everything personal (company list, resume, profile, documents, browser session, tracker) is in `data/`, `config.yaml` and `profile.yaml`, which git ignores.
 - Run the tests with `npm test`.

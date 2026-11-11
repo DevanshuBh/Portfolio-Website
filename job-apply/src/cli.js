@@ -17,16 +17,18 @@ const HELP = `job-apply - find matching openings, tailor your resume and cover l
 Usage: node src/cli.js <command> [options]
 
   doctor              Check that everything is set up before the first run
-  init                Read your resume PDF into data/resume.json (run once; review the file afterwards)
+  init                Create data/resume.json for your resume (run once; check it against your resume)
   discover            Find each company's public job board      [--refresh] [--limit N]
   search              Fetch openings and keep the relevant ones
   prepare             Write a tailored resume + cover letter per job   [--limit N] [--redo]
-  apply               Fill in the application forms              [--auto] [--limit N] [--only <company>] [--dry-run]
+  apply               Go through the jobs one by one with you, then the other companies' careers sites
+                                                                 [--limit N] [--only <company>] [--no-sites] [--dry-run]
   status              Show counts and rebuild data/tracker.xlsx
   run                 discover + search + prepare + apply, in order
 
-Applying stops for your confirmation on every job unless you pass --auto (or set apply.auto_submit: true).
---dry-run fills the forms and takes a screenshot but never submits.`;
+For every application it fills in what it knows, asks you in this terminal for anything it does not know,
+shows you everything on the form, and submits only after you confirm. --dry-run fills forms and takes a
+screenshot without asking or submitting anything.`;
 
 function parseArgs(argv) {
   const [command, ...rest] = argv;
@@ -35,7 +37,7 @@ function parseArgs(argv) {
     const a = rest[i];
     if (!a.startsWith('--')) throw new Error(`Unexpected argument "${a}". Run with --help.`);
     const key = a.slice(2);
-    if (['refresh', 'redo', 'auto', 'dry-run', 'help'].includes(key)) opts[key] = true;
+    if (['refresh', 'redo', 'no-sites', 'dry-run', 'help'].includes(key)) opts[key] = true;
     else if (['limit', 'only'].includes(key)) {
       const v = rest[++i];
       if (v === undefined || v.startsWith('--')) throw new Error(`--${key} needs a value`);
@@ -141,7 +143,8 @@ async function main() {
     case 'apply': {
       const profile = loadProfile();
       const companies = await getCompanies(cfg);
-      const { state } = await applyAll(cfg, profile, companies, { only: opts.only, auto: opts.auto ?? cfg.apply.auto_submit, limit: opts.limit ?? cfg.apply.max_per_run, dryRun: opts['dry-run'] });
+      const base = (() => { try { return loadResume(); } catch { return null; } })();
+      const { state } = await applyAll(cfg, profile, companies, { only: opts.only, limit: opts.limit, dryRun: opts['dry-run'], base, sites: !opts['no-sites'] });
       printStatus(state);
       return;
     }
@@ -157,7 +160,7 @@ async function main() {
       await discover(companies, {});
       await search(companies, cfg, base.target_titles);
       await prepare(cfg, base, { limit: opts.limit });
-      const { state } = await applyAll(cfg, profile, companies, { auto: opts.auto ?? cfg.apply.auto_submit, limit: opts.limit ?? cfg.apply.max_per_run, dryRun: opts['dry-run'] });
+      const { state } = await applyAll(cfg, profile, companies, { limit: opts.limit, dryRun: opts['dry-run'], base, sites: !opts['no-sites'] });
       printStatus(state);
       return;
     }

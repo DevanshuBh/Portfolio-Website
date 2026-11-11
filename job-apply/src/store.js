@@ -10,8 +10,9 @@ const BOARDS_FILE = () => path.join(DATA, 'boards.json');
 export const SENT = new Set(['submitted', 'submitting', 'unconfirmed']);
 
 export function loadState() {
-  const s = readJson(STATE_FILE(), { version: 1, jobs: {} });
+  const s = readJson(STATE_FILE(), { version: 1, jobs: {}, sites: {} });
   if (!s.jobs || typeof s.jobs !== 'object') throw new Error(`${STATE_FILE()} has no "jobs" object; restore it from state.json.bak.`);
+  s.sites ??= {};
   return s;
 }
 

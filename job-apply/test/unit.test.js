@@ -202,7 +202,7 @@ test('form questions are answered from the profile, and unknowns are left alone'
   assert.equal(ruleAnswer(f('Legal name'), ctx).value, 'Asha Rao');
   assert.equal(ruleAnswer(f('Email Address'), ctx).value, 'asha@example.com');
   assert.equal(ruleAnswer(f('LinkedIn Profile'), ctx).value, 'https://linkedin.com/in/asha');
-  assert.equal(ruleAnswer(f('GitHub URL'), ctx), null, 'empty profile value is never invented');
+  assert.deepEqual(ruleAnswer(f('GitHub URL'), ctx), { need: 'github' }, 'empty profile value is never invented; it is asked for');
   assert.equal(ruleAnswer(f('Resume/CV', { kind: 'file' }), ctx).value, '/r.pdf');
   assert.equal(ruleAnswer(f('Cover Letter', { kind: 'file' }), ctx).value, '/c.pdf');
   assert.equal(ruleAnswer(f('Cover Letter', { kind: 'file' }), { ...ctx, docs: { ...ctx.docs, cover: null } }), null);
@@ -212,7 +212,7 @@ test('form questions are answered from the profile, and unknowns are left alone'
   assert.equal(ruleAnswer(f('Will you now or in the future require visa sponsorship?'), ctx).value, 'No');
   assert.equal(ruleAnswer(f('What is your notice period?'), ctx).value, '30 days');
   assert.equal(ruleAnswer(f('I acknowledge the privacy notice'), ctx), null, '"privacy notice" on a text field is not the notice period');
-  assert.equal(ruleAnswer(f('Expected CTC'), ctx), null);
+  assert.deepEqual(ruleAnswer(f('Expected CTC'), ctx), { need: 'expected_ctc' });
   assert.equal(ruleAnswer(f('Years of experience'), ctx).value, '2');
   assert.equal(ruleAnswer(f('How many years of experience do you have with Kafka?'), ctx), null, 'skill-specific years are not the total');
   assert.equal(ruleAnswer(f('Have you worked at Globex before?'), ctx).value, 'No');

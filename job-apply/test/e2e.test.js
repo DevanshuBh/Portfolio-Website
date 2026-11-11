@@ -19,7 +19,7 @@ if (!process.env.JOB_APPLY_CHROMIUM && fs.existsSync('/opt/pw-browsers/chromium'
 const { discover } = await import('../src/discover.js');
 const { search } = await import('../src/pipeline.js');
 const { applyAll } = await import('../src/apply/apply.js');
-const { loadState, saveState, loadBoards, writeTracker, setStatus } = await import('../src/store.js');
+const { loadState, saveState, loadBoards, saveBoards, writeTracker, setStatus } = await import('../src/store.js');
 const { renderResumePdf, renderHtmlPdf, coverLetterHtml } = await import('../src/resume.js');
 const { launchHeadless } = await import('../src/browser.js');
 const { loadConfig, loadProfile } = await import('../src/config.js');
@@ -279,12 +279,113 @@ test('apply: no confirmation and interrupted submits are never retried', async (
   assert.equal(loadState().jobs[key].status, 'unconfirmed'); assert.equal(submissions.length, n);
 });
 
+/** Plays the part of the person at the terminal. Unexpected questions are recorded and answered with "q". */
+function person(answers) {
+  const io = { asked: [], printed: [], unexpected: [] };
+  io.ask = async (q) => { io.asked.push(q); if (!answers.length) { io.unexpected.push(q); return 'q'; } return answers.shift(); };
+  io.print = (s) => io.printed.push(s);
+  return io;
+}
+const profileFile = path.join(DATA, 'profile.yaml');
+fs.writeFileSync(profileFile, `# my profile - comments must survive
+first_name: "Asha"
+last_name: "Rao"
+email: "asha@example.com"
+phone: "+91 90000 00000"
+linkedin: "https://www.linkedin.com/in/asha"
+years_of_experience: ""   # left empty on purpose
+requires_sponsorship: "No"
+authorized_countries: ["India"]
+accept_privacy_consent: true
+answers:
+`);
+
+test('interactive: asks for what it does not know, shows the form, submits only after you confirm', async () => {
+  const p = loadProfile(profileFile);
+  const key = queue(501, '/form');
+  const n = submissions.length;
+  const io = person(['2', 'I like the payments work at Globex.', 'y', 'n', 's']);
+  await applyAll(cfg, p, companies, { only: key, io, sites: false });
+  assert.deepEqual(io.unexpected, []);
+  assert.match(io.asked[0], /a number/, 'years of experience asked as a number');
+  assert.match(io.printed.join('\n'), /\? Years of experience \*\s+\(required\)/);
+  assert.match(io.printed.join('\n'), /\? Why do you want to work at Globex\? \*/);
+  assert.match(io.printed.join('\n'), /1 optional question\(s\) are empty: "GitHub URL"/); assert.match(io.asked[3], /Answer them now/);
+  const snapshot = io.printed.join('\n');
+  assert.match(snapshot, /Here is everything on the form now/);
+  assert.match(snapshot, /First Name \*\s+Asha/); assert.match(snapshot, /Resume\/CV \*\s+Asha_Rao_Resume\.pdf/);
+  assert.match(snapshot, /Years of experience \*\s+2/); assert.match(snapshot, /GitHub URL\s+\(empty\)/);
+  assert.match(snapshot, /Are all the details correct\?/);
+  assert.equal(submissions.length, n + 1, 'submitted exactly once, after "s"');
+  assert.match(submissions.at(-1), /name="yoe"\r\n\r\n2\r\n/); assert.match(submissions.at(-1), /I like the payments work at Globex\./);
+  assert.equal(loadState().jobs[key].status, 'submitted');
+  const saved = fs.readFileSync(profileFile, 'utf8');
+  assert.match(saved, /# my profile - comments must survive/);
+  assert.match(saved, /years_of_experience: "?2"?/, 'a standard field is saved back to profile.yaml');
+  assert.match(saved, /match: .*Why\\s\+do\\s\+you.*\n\s+answer: I like the payments work at Globex\./, 'a free-form answer is remembered when you say so');
+});
+
+test('interactive: a rejected form is not submitted; remembered answers are reused; you can skip', async () => {
+  const p = loadProfile(profileFile);
+  assert.equal(p.years_of_experience, '2');
+  const key = queue(502, '/form?mode=invalid');
+  const n = submissions.length;
+  const io = person(['n', 's', 'k']);
+  await applyAll(cfg, p, companies, { only: key, io, sites: false });
+  assert.deepEqual(io.unexpected, []);
+  assert.ok(!io.asked.some((q) => /Your answer/.test(q)), 'nothing had to be asked again');
+  assert.match(io.printed.join('\n'), /did not accept the form: Please enter a valid phone number/);
+  assert.equal(io.asked.filter((q) => /Answer them now/.test(q)).length, 1, 'declined optional questions are not asked again for the same job');
+  assert.equal(loadState().jobs[key].status, 'skipped');
+  assert.equal(submissions.length, n);
+});
+
+test('interactive: you can quit, choose later, or say you submitted it yourself', async () => {
+  const p = loadProfile(profileFile);
+  const k1 = queue(503, '/form');
+  await applyAll(cfg, p, companies, { only: k1, io: person(['n', 'q']), sites: false });
+  assert.equal(loadState().jobs[k1].status, 'prepared', 'quitting leaves the job to be offered again');
+  await applyAll(cfg, p, companies, { only: k1, io: person(['n', 'l']), sites: false });
+  assert.equal(loadState().jobs[k1].status, 'needs_manual');
+  await applyAll(cfg, p, companies, { only: k1, io: person(['n', 'd']), sites: false });
+  assert.equal(loadState().jobs[k1].status, 'submitted');
+  assert.match(loadState().jobs[k1].reason, /by you/);
+});
+
+test("interactive: companies without a searchable board - their careers site is opened and you pick the job", async () => {
+  const p = loadProfile(profileFile);
+  const sitesCompanies = [company('Initech (India)'), company('Vandelay Industries')];
+  const boards = loadBoards();
+  boards.initech = { company: 'Initech (India)', key: 'initech', status: 'unsupported_site', careers_url: `${base}/form` };
+  boards.vandelayindustries = { company: 'Vandelay Industries', key: 'vandelayindustries', status: 'unsupported_site', careers_url: `${base}/filled` };
+  saveBoards(boards);
+  // Clear jobs left over from earlier tests: open jobs are always offered before the careers sites.
+  const s0 = loadState(); for (const j of Object.values(s0.jobs)) if (['new', 'prepared', 'needs_manual', 'failed'].includes(j.status)) setStatus(j, 'skipped', 'test'); saveState(s0);
+  const n = submissions.length;
+  const io = person(['', '', '', 'n', 's', 'n', 'n']);
+  await applyAll(cfg, p, sitesCompanies, { io, base: resume });
+  assert.deepEqual(io.unexpected, []);
+  assert.match(io.asked[2], /Job title \[Software Engineer\]/, 'title read from the page');
+  assert.match(io.printed.join('\n'), new RegExp(`Careers page: ${base.replace(/[.]/g, '\\.')}/form`));
+  const state = loadState();
+  const job = Object.values(state.jobs).find((j) => j.key.startsWith('site:initech:'));
+  assert.equal(job.status, 'submitted');
+  assert.ok(fs.existsSync(job.docs.resume), 'a resume was prepared for the job you picked');
+  assert.equal(submissions.length, n + 1);
+  assert.match(submissions.at(-1), /filename="Asha_Rao_Resume\.pdf"/);
+  assert.deepEqual([state.sites.initech.status, state.sites.vandelayindustries.status], ['done', 'no_job']);
+  // Next run: handled companies are not offered again.
+  const io2 = person([]);
+  await applyAll(cfg, p, sitesCompanies, { io: io2, base: resume });
+  assert.deepEqual(io2.asked, []);
+});
+
 test('tracker and state: report is written, corrupt state is refused rather than reset', async () => {
   const file = await writeTracker(loadState());
   const ExcelJS = (await import('exceljs')).default;
   const wb = new ExcelJS.Workbook(); await wb.xlsx.readFile(file);
   const rows = []; wb.getWorksheet('Jobs').eachRow((r) => rows.push(r.getCell(1).value));
-  assert.ok(rows.includes('submitted') && rows.includes('needs_manual') && rows.includes('unconfirmed'));
+  assert.ok(rows.includes('submitted') && rows.includes('skipped') && rows.includes('unconfirmed'));
   assert.ok(wb.getWorksheet('Companies').rowCount >= 4);
   assert.ok(fs.existsSync(path.join(DATA, 'state.json.bak')));
   fs.writeFileSync(path.join(DATA, 'state.json'), '{"jobs": {');

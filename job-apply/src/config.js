@@ -16,7 +16,7 @@ const DEFAULTS = {
     use_resume_titles: true,
     exclude_titles: [],
     locations: [],
-    allow_remote: true,
+    allow_remote: false,
     keep_unknown_location: false,
     max_years_required: null,
     posted_within_days: null,
@@ -110,5 +110,7 @@ export function loadProfile(file = path.join(ROOT, 'profile.yaml')) {
   if (problems.length) throw new Error(`profile.yaml has problems:\n  - ${problems.join('\n  - ')}`);
   for (const [k, v] of Object.entries(p)) if (typeof v === 'number' || typeof v === 'boolean') if (k !== 'accept_privacy_consent') p[k] = String(v);
   p.authorized_countries = Array.isArray(p.authorized_countries) ? p.authorized_countries.map(String) : [];
+  // Remember where the profile lives so answers you give while applying can be saved back to it.
+  Object.defineProperty(p, '__file', { value: file, enumerable: false });
   return p;
 }

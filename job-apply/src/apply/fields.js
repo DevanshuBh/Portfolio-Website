@@ -64,7 +64,7 @@ export function collectFields() {
 
     if (type === 'file') { // file inputs are usually visually hidden behind a button
       const label = labelOf(el) || groupLabel(el);
-      fields.push({ id: tag(el), kind: 'file', label, required: isRequired(el, label), accept: el.getAttribute('accept') ?? '' });
+      fields.push({ id: tag(el), kind: 'file', label, required: isRequired(el, label), accept: el.getAttribute('accept') ?? '', files: [...(el.files ?? [])].map((f) => f.name) });
       continue;
     }
     if (type === 'radio' || type === 'checkbox') {
@@ -86,7 +86,7 @@ export function collectFields() {
     const label = labelOf(el);
     const isCombo = el.getAttribute('role') === 'combobox' || el.getAttribute('aria-autocomplete') === 'list' || el.hasAttribute('aria-haspopup');
     if (tagName === 'select') {
-      fields.push({ id: tag(el), kind: 'select', label, required: isRequired(el, label), value: el.value,
+      fields.push({ id: tag(el), kind: 'select', label, required: isRequired(el, label), value: el.value, selectedText: el.selectedIndex >= 0 ? el.options[el.selectedIndex].textContent.trim() : '',
         options: [...el.options].filter((o) => o.value !== '' && !o.disabled).map((o) => ({ label: o.textContent.trim(), value: o.value })) });
     } else if (isCombo) {
       fields.push({ id: tag(el), kind: 'combobox', label, required: isRequired(el, label), value: el.value ?? '' });

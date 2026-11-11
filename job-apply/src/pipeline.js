@@ -79,6 +79,36 @@ export async function search(companies, cfg, extraTitles = []) {
 
 const outDir = (job) => path.join(DATA, 'out', `${safeFileName(job.company, 30)}__${safeFileName(job.title, 40)}__${safeFileName(job.id, 12)}`);
 
+/**
+ * Write the tailored resume (and cover letter) for one job into data/out/... and record the paths on the job.
+ * `browser` is a headless browser used only to print the PDFs. Returns notes worth showing you.
+ */
+export async function makeDocs(cfg, base, job, browser) {
+  const readable = (job.description ?? '').length >= 200;
+  const t = readable ? await tailor(cfg, base, job)
+    : { resume: base, notes: ['Job description could not be read, so your resume is used unchanged'], score: { before: null, after: null, missing: [] }, cover: { ok: false, reason: 'job description could not be read' } };
+  const dir = outDir(job);
+  const person = safeFileName(base.name, 40);
+  const resumeFile = path.join(dir, `${person}_Resume.pdf`);
+  const fit = await renderResumePdf(browser, t.resume, resumeFile, cfg.resume_max_pages ?? 1);
+  job.docs = { dir, resume: resumeFile, cover: null, coverTxt: null };
+  writeFileAtomic(path.join(dir, 'resume.json'), JSON.stringify(t.resume, null, 2));
+  writeFileAtomic(path.join(dir, 'job.txt'), `${job.company}\n${job.title}\n${job.location ?? ''}\n${job.url}\n\n${job.description ?? ''}\n`);
+  const notes = [...t.notes];
+  if (!fit.fits) notes.push(`Resume is ${fit.pages} pages even at ${fit.fontPt}pt`);
+  if (t.cover.ok) {
+    job.docs.cover = path.join(dir, `${person}_Cover_Letter.pdf`);
+    job.docs.coverTxt = path.join(dir, 'cover_letter.txt');
+    await renderHtmlPdf(browser, coverLetterHtml(t.resume, job, t.cover.paragraphs), job.docs.cover);
+    fs.writeFileSync(job.docs.coverTxt, coverLetterText(t.resume, t.cover.paragraphs));
+  } else notes.push(`No cover letter (${t.cover.reason})`);
+  job.score = t.score;
+  job.tailoredText = resumeText(t.resume);
+  return notes;
+}
+
+export const docsReady = (job) => Boolean(job.docs?.resume && fs.existsSync(job.docs.resume));
+
 /** Write a tailored resume and cover letter for every job still waiting for one. */
 export async function prepare(cfg, base, { limit = Infinity, redo = false } = {}) {
   const state = loadState();
@@ -86,32 +116,15 @@ export async function prepare(cfg, base, { limit = Infinity, redo = false } = {}
   if (!todo.length) return { state, prepared: 0, failed: 0 };
   log.info(`Preparing documents for ${todo.length} jobs...`);
   const browser = await launchHeadless();
-  const person = safeFileName(base.name, 40);
   let prepared = 0, failed = 0, fatal = null;
   try {
     for (const job of todo) {
       if (fatal) break;
       try {
-        const t = await tailor(cfg, base, job);
-        const dir = outDir(job);
-        const resumeFile = path.join(dir, `${person}_Resume.pdf`);
-        const fit = await renderResumePdf(browser, t.resume, resumeFile, cfg.resume_max_pages ?? 1);
-        job.docs = { dir, resume: resumeFile, cover: null, coverTxt: null };
-        writeFileAtomic(path.join(dir, 'resume.json'), JSON.stringify(t.resume, null, 2));
-        writeFileAtomic(path.join(dir, 'job.txt'), `${job.company}\n${job.title}\n${job.location}\n${job.url}\n\n${job.description}\n`);
-        const notes = [...t.notes];
-        if (!fit.fits) notes.push(`Resume is ${fit.pages} pages even at ${fit.fontPt}pt`);
-        if (t.cover.ok) {
-          job.docs.cover = path.join(dir, `${person}_Cover_Letter.pdf`);
-          job.docs.coverTxt = path.join(dir, 'cover_letter.txt');
-          await renderHtmlPdf(browser, coverLetterHtml(t.resume, job, t.cover.paragraphs), job.docs.cover);
-          fs.writeFileSync(job.docs.coverTxt, coverLetterText(t.resume, t.cover.paragraphs));
-        } else notes.push(`No cover letter (${t.cover.reason})`);
-        job.score = t.score;
-        job.tailoredText = resumeText(t.resume);
+        const notes = await makeDocs(cfg, base, job, browser);
         setStatus(job, 'prepared', notes.join('; '));
         prepared++;
-        log.info(`  ok  ${job.company} - ${job.title}  (keyword match ${t.score.before ?? '?'}% -> ${t.score.after ?? '?'}%)`);
+        log.info(`  ok  ${job.company} - ${job.title}  (keyword match ${job.score.before ?? '?'}% -> ${job.score.after ?? '?'}%)`);
       } catch (err) {
         failed++;
         // Bad key / no network will fail every job the same way: stop instead of burning through the list.

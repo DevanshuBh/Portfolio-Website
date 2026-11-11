@@ -12,7 +12,7 @@
   },
   "scripts": {
     "start": "node src/cli.js",
-    "test": "node --test test/",
+    "test": "node --test test/unit.test.js test/e2e.test.js",
     "postinstall": "playwright install chromium || echo \"Run: npx playwright install chromium\""
   },
   "dependencies": {

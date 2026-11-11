@@ -28,11 +28,11 @@ search:
     - "\\b(sales|account executive|recruiter|marketing|support|solutions? engineer)\\b"
   # A job is kept when its location contains one of these (case-insensitive), or it is remote and allow_remote is true.
   locations: ["India", "Bengaluru", "Bangalore", "Hyderabad", "Pune", "Gurugram", "Gurgaon", "Noida", "Mumbai", "Chennai", "Delhi"]
-  allow_remote: true
+  allow_remote: false                 # true = also keep remote jobs that do not name an Indian location
   keep_unknown_location: false        # keep jobs that list no location at all
   max_years_required: 3               # skip jobs whose description asks for more than this many years
   posted_within_days: 45              # skip older postings (when the board exposes a date); null = no limit
-  max_jobs_per_company: 2             # best-matching N per company
+  max_jobs_per_company: 5             # at most this many jobs per company per search
 
 cover_letter: true                    # false = never write or attach a cover letter
 
@@ -46,9 +46,5 @@ llm:
   effort: medium
 
 apply:
-  auto_submit: false                  # false = you confirm every application in the terminal before it is sent
-  allow_llm_answers_in_auto: false    # in auto mode, pause when an answer was written by the model rather than taken from your profile
-  max_per_run: 25
-  delay_seconds: [25, 60]             # random wait between applications
   headless: false                     # keep false: you need to see the browser for CAPTCHAs and review
-  captcha_wait_seconds: 180           # how long to wait for you to solve a CAPTCHA before marking the job "needs_manual"
+  captcha_wait_seconds: 180           # after you press submit, how long to wait for you to solve a CAPTCHA
