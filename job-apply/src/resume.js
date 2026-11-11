@@ -219,17 +219,19 @@ export async function tailor(cfg, base, job) {
 
 const CSS = (pt) => `
 *{box-sizing:border-box} html,body{margin:0;padding:0}
-body{font-family:Arial,Helvetica,sans-serif;font-size:${pt}pt;line-height:1.32;color:#000}
+body{font-family:Arial,Helvetica,sans-serif;font-size:${pt}pt;line-height:1.22;color:#000}
 h1{font-size:${pt + 8}pt;margin:0 0 2px;text-align:center}
 .contact{text-align:center;margin-bottom:6px} .contact a{color:#000;text-decoration:none}
-h2{font-size:${pt + 1}pt;text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid #000;margin:9px 0 4px;padding-bottom:1px}
+h2{font-size:${pt + 1}pt;text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid #000;margin:6px 0 3px;padding-bottom:1px}
 .row{display:flex;justify-content:space-between;gap:12px} .row .l{font-weight:bold} .row .r{white-space:nowrap}
-.sub{font-style:italic} ul{margin:2px 0 5px;padding-left:16px} li{margin:0 0 1.5px} p{margin:0 0 4px}
+.sub{font-style:italic} ul{margin:1px 0 3px;padding-left:15px} li{margin:0 0 1px} p{margin:0 0 2px}
 .entry{break-inside:avoid;margin-bottom:3px}`;
 
 const e = escapeHtml;
 const section = (title, body) => (body ? `<h2>${e(title)}</h2>${body}` : '');
-const bullets = (list) => (list?.length ? `<ul>${list.map((b) => `<li>${e(b)}</li>`).join('')}</ul>` : '');
+// A short "Label:" at the start of a bullet is shown in bold, as on most resumes.
+const bulletHtml = (b) => { const m = /^([^:]{3,45}):\s+(.+)$/.exec(b); return m ? `<b>${e(m[1])}:</b> ${e(m[2])}` : e(b); };
+const bullets = (list) => (list?.length ? `<ul>${list.map((b) => `<li>${bulletHtml(b)}</li>`).join('')}</ul>` : '');
 const dates = (a, b) => [a, b].filter(Boolean).join(' - ');
 
 /** Single column, real text, standard section names: the layout resume parsers read most reliably. */
@@ -239,8 +241,8 @@ export function resumeHtml(r, pt = 10.5) {
 <h1>${e(r.name)}</h1><div class="contact">${contact.map(e).join(' | ')}</div>
 ${section('Summary', r.summary ? `<p>${e(r.summary)}</p>` : '')}
 ${section('Skills', r.skills.map((s) => `<p><b>${e(s.category)}:</b> ${e(s.items.join(', '))}</p>`).join(''))}
-${section('Experience', r.experience.map((x) => `<div class="entry"><div class="row"><span class="l">${e(x.title)}${x.company ? `, ${e(x.company)}` : ''}</span><span class="r">${e(dates(x.start, x.end))}</span></div>${x.location ? `<div class="sub">${e(x.location)}</div>` : ''}${bullets(x.bullets)}</div>`).join(''))}
-${section('Projects', r.projects.map((p) => `<div class="entry"><div class="row"><span class="l">${e(p.name)}</span><span class="r">${e(p.link)}</span></div>${p.tech.length ? `<div class="sub">${e(p.tech.join(', '))}</div>` : ''}${bullets(p.bullets)}</div>`).join(''))}
+${section('Experience', r.experience.map((x) => `<div class="entry"><div class="row"><span class="l">${e(x.title)}${x.company ? `, ${e(x.company)}` : ''}</span><span class="r">${e([x.location, dates(x.start, x.end)].filter(Boolean).join(' | '))}</span></div>${bullets(x.bullets)}</div>`).join(''))}
+${section('Projects', r.projects.map((p) => `<div class="entry"><div class="row"><span><span class="l">${e(p.name)}</span>${p.tech.length ? ` <span class="sub">| ${e(p.tech.join(', '))}</span>` : ''}</span><span class="r">${e(p.link)}</span></div>${bullets(p.bullets)}</div>`).join(''))}
 ${section('Education', r.education.map((x) => `<div class="entry"><div class="row"><span class="l">${e(x.degree)}${x.institution ? `, ${e(x.institution)}` : ''}</span><span class="r">${e(dates(x.start, x.end))}</span></div>${x.details ? `<p>${e(x.details)}</p>` : ''}</div>`).join(''))}
 ${section('Certifications', bullets(r.certifications))}
 ${section('Achievements', bullets(r.achievements))}
@@ -260,7 +262,7 @@ ${paragraphs.map((p) => `<p>${e(p)}</p>`).join('')}
 
 export const coverLetterText = (r, paragraphs) => `Dear Hiring Team,\n\n${paragraphs.join('\n\n')}\n\nSincerely,\n${r.name}\n`;
 
-const PDF_OPTS = { format: 'A4', margin: { top: '0.5in', bottom: '0.5in', left: '0.6in', right: '0.6in' }, printBackground: false };
+const PDF_OPTS = { format: 'A4', margin: { top: '0.4in', bottom: '0.4in', left: '0.5in', right: '0.5in' }, printBackground: false };
 const pageCount = (buf) => (buf.toString('latin1').match(/\/Type\s*\/Page(?![a-zA-Z])/g) ?? []).length;
 
 /** Render the resume, shrinking the type a little if needed to stay within maxPages. */
@@ -269,7 +271,7 @@ export async function renderResumePdf(browser, resume, file, maxPages = 1) {
   const page = await browser.newPage();
   try {
     let buf, pages, used;
-    for (const pt of [10.5, 10, 9.5, 9]) {
+    for (const pt of [10.5, 10, 9.5, 9, 8.5]) {
       await page.setContent(resumeHtml(resume, pt), { waitUntil: 'load' });
       buf = await page.pdf(PDF_OPTS);
       pages = pageCount(buf); used = pt;
