@@ -1,0 +1,50 @@
+# Copy to config.yaml and edit. Paths are relative to this folder.
+
+companies_file: data/companies.xlsx   # your Excel list
+# sheet: "All 1207 Companies"         # optional; default = first sheet that has a "Company" column
+resume_file: data/resume.pdf          # your base resume (PDF)
+resume_max_pages: 1                   # tailored resume is kept within this many pages
+
+# Which rows of the Excel to process. Matched against the "Tier" column, case-insensitive substring.
+# Rows whose tier contains any of skip_tiers are ignored. Leave tiers empty to take every non-skipped row.
+tiers: []
+skip_tiers: ["Low Fit"]
+min_match_score: null                 # e.g. 2 -> ignore rows with "Resume Match Score" below 2
+location_priorities: []               # e.g. ["1 - Primary"]; empty = all
+
+search:
+  # A job is relevant when its title matches at least one include pattern and no exclude pattern.
+  # Patterns are case-insensitive regular expressions.
+  include_titles:
+    - "software (engineer|developer)"
+    - "\\b(sde|swe)\\b"
+    - "(front[- ]?end|back[- ]?end|full[- ]?stack) (engineer|developer)"
+    - "\\b(java|react|javascript|typescript|node(\\.?js)?|web|ui) (engineer|developer)"
+    - "member of technical staff"
+  use_resume_titles: true             # also match the target titles `init` derives from your resume
+  exclude_titles:
+    - "\\b(senior|sr\\.?|staff|principal|lead|manager|director|head|vp|architect|distinguished)\\b"
+    - "\\b(intern|internship|apprentice|working student|co-?op)\\b"
+    - "\\b(sales|account executive|recruiter|marketing|support|solutions? engineer)\\b"
+  # A job is kept when its location contains one of these (case-insensitive), or it is remote and allow_remote is true.
+  locations: ["India", "Bengaluru", "Bangalore", "Hyderabad", "Pune", "Gurugram", "Gurgaon", "Noida", "Mumbai", "Chennai", "Delhi"]
+  allow_remote: false                 # true = also keep remote jobs that do not name an Indian location
+  keep_unknown_location: false        # keep jobs that list no location at all
+  max_years_required: 3               # skip jobs whose description asks for more than this many years
+  posted_within_days: 45              # skip older postings (when the board exposes a date); null = no limit
+  max_jobs_per_company: 5             # at most this many jobs per company per search
+
+cover_letter: true                    # false = never write or attach a cover letter
+
+llm:
+  # none      = FREE. Nothing is sent to any paid service. The resume is tailored by re-ordering your own
+  #             skills, bullets and projects for each job, and the cover letter is assembled from your own lines.
+  # anthropic = PAID (needs ANTHROPIC_API_KEY, billed per job). Rewrites bullets in the job's wording,
+  #             writes a bespoke cover letter, and answers open form questions.
+  provider: none
+  model: claude-opus-5-5              # only used when provider is anthropic
+  effort: medium
+
+apply:
+  headless: false                     # keep false: you need to see the browser for CAPTCHAs and review
+  captcha_wait_seconds: 180           # after you press submit, how long to wait for you to solve a CAPTCHA
