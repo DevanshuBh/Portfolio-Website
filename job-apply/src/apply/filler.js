@@ -164,7 +164,9 @@ const DUP_RE = /(already (applied|submitted an application)|you have applied (fo
 export async function pageSignals(page) {
   let body = '';
   for (const frame of page.frames()) { try { body += ' ' + await frame.evaluate(() => document.body?.innerText ?? ''); } catch { /* cross-origin or gone */ } }
-  return { success: SUCCESS_RE.test(body) || /(confirmation|thank[-_]?you|thanks|application[-_]submitted)/i.test(new URL(page.url()).pathname), closed: CLOSED_RE.test(body), duplicate: DUP_RE.test(body), body };
+  const said = SUCCESS_RE.exec(body);
+  const success = Boolean(said) || /(confirmation|thank[-_]?you|thanks|application[-_]submitted)/i.test(new URL(page.url()).pathname);
+  return { success, successText: said ? body.slice(said.index, said.index + 120).split('\n')[0].trim() : '', closed: CLOSED_RE.test(body), duplicate: DUP_RE.test(body), body };
 }
 
 /** A CAPTCHA the person has to solve (not the invisible badge most forms carry). */

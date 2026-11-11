@@ -82,6 +82,8 @@ before(async () => {
       req.on('end', () => { submissions.push(Buffer.concat(chunks).toString('latin1')); res.writeHead(200, { 'content-type': 'text/html' }); res.end('<h1>Thank you for applying</h1><p>Your application has been received.</p>'); });
       return;
     }
+    if (u.pathname === '/quick') { res.writeHead(200, { 'content-type': 'text/html' }); res.end('<h1>Globex - Software Engineer</h1><p>Quick apply</p><form method="post" action="/submit"><label for="e">Email</label><input id="e" name="email" type="email"><button type="submit">Apply</button></form>'); return; }
+    if (u.pathname === '/jd') { res.writeHead(200, { 'content-type': 'text/html' }); res.end('<h1>Software Engineer</h1><p>Globex is hiring in Bengaluru.</p><a href="/form">Apply for this job</a>'); return; }
     if (u.pathname === '/gone') { res.writeHead(404, { 'content-type': 'text/html' }); res.end('<h1>Page not found</h1>'); return; }
     if (u.pathname === '/filled') { res.writeHead(200, { 'content-type': 'text/html' }); res.end('<h1>Globex</h1><p>Sorry, this position has been filled.</p>'); return; }
     res.writeHead(200, { 'content-type': 'text/html' }); res.end(form);
@@ -319,6 +321,8 @@ test('interactive: asks for what it does not know, shows the form, submits only 
   assert.equal(submissions.length, n + 1, 'submitted exactly once, after "s"');
   assert.match(submissions.at(-1), /name="yoe"\r\n\r\n2\r\n/); assert.match(submissions.at(-1), /I like the payments work at Globex\./);
   assert.equal(loadState().jobs[key].status, 'submitted');
+  assert.match(loadState().jobs[key].reason, /Confirmed by the site at http:\/\/127\.0\.0\.1:\d+\/submit \("Thank you for applying/);
+  assert.match(io.printed.join('\n'), /The site confirmed it: "Thank you for applying/);
   const saved = fs.readFileSync(profileFile, 'utf8');
   assert.match(saved, /# my profile - comments must survive/);
   assert.match(saved, /years_of_experience: "?2"?/, 'a standard field is saved back to profile.yaml');
@@ -350,6 +354,23 @@ test('interactive: you can quit, choose later, or say you submitted it yourself'
   await applyAll(cfg, p, companies, { only: k1, io: person(['n', 'd']), sites: false });
   assert.equal(loadState().jobs[k1].status, 'submitted');
   assert.match(loadState().jobs[k1].reason, /by you/);
+});
+
+test("interactive: the site's own Apply button is pressed only when it cannot send a form", async () => {
+  const p = loadProfile(profileFile);
+  const n = submissions.length;
+  const k1 = queue(601, '/quick');
+  const io1 = person(['k']);
+  await applyAll(cfg, p, companies, { only: k1, io: io1, sites: false });
+  assert.equal(submissions.length, n, 'an "Apply" button that submits a form is never pressed on its own');
+  assert.ok(!io1.printed.join('\n').includes("pressed the site's Apply button"));
+  const k2 = queue(602, '/jd');
+  const io2 = person(['n', 'k']);
+  await applyAll(cfg, p, companies, { only: k2, io: io2, sites: false });
+  assert.deepEqual(io2.unexpected, []);
+  const out = io2.printed.join('\n');
+  assert.match(out, new RegExp(`Opened in the browser: ${base.replace(/[.]/g, '\\.')}/form  \\(pressed the site's Apply button`), 'a link that only opens the form is followed, and you are told');
+  assert.equal(submissions.length, n);
 });
 
 test("interactive: companies without a searchable board - their careers site is opened and you pick the job", async () => {

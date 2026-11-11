@@ -44,7 +44,7 @@ async function awaitOutcome(page, frame, cfg, startUrl, say = (s) => log.info(s)
     await sleep(1000);
     if (page.isClosed()) return { result: 'unconfirmed', note: 'The page was closed before a confirmation appeared.' };
     const sig = await pageSignals(page).catch(() => null);
-    if (sig?.success) return { result: 'submitted' };
+    if (sig?.success) return { result: 'submitted', url: page.url(), said: sig.successText };
     if (sig?.duplicate) return { result: 'duplicate' };
     if (await captchaVisible(page)) {
       if (!captchaDeadline) {
@@ -64,6 +64,7 @@ async function awaitOutcome(page, frame, cfg, startUrl, say = (s) => log.info(s)
 async function openForm(page, job) {
   const urls = [job.applyUrl, job.altApplyUrl].filter(Boolean);
   let last = { fields: [], frame: page.mainFrame() };
+  let clickedApply = false;
   for (const url of urls) {
     let resp;
     try { resp = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 45000 }); }
@@ -76,18 +77,21 @@ async function openForm(page, job) {
     if (found.fields.length < 3) {
       // Some boards show the description first with an "Apply" button that reveals the form.
       const btn = page.getByRole('link', { name: /^(apply( now| for this job| to this job)?|i'?m interested)$/i }).or(page.getByRole('button', { name: /^(apply( now| for this job| to this job)?|i'?m interested)$/i })).first();
-      if (await btn.isVisible().catch(() => false)) {
+      // Only press it when it cannot send anything: a link, or a button that is not a form's submit button.
+      const safe = await btn.evaluate((el) => el.tagName === 'A' || (el.getAttribute('type') ?? '').toLowerCase() === 'button' || !el.closest('form')).catch(() => false);
+      if (safe && await btn.isVisible().catch(() => false)) {
+        clickedApply = true;
         await btn.click({ timeout: 5000 }).catch(() => {});
         await page.waitForLoadState('domcontentloaded', { timeout: 10000 }).catch(() => {});
         await sleep(1500);
         found = await findFormFrame(page);
       }
     }
-    if (found.fields.length >= 3) return { ...found, sig };
+    if (found.fields.length >= 3) return { ...found, sig, clickedApply };
     if (sig.closed) return { closed: true };
     last = { ...found, sig };
   }
-  return { ...last, noForm: true };
+  return { ...last, noForm: true, clickedApply };
 }
 
 /**
@@ -144,7 +148,10 @@ async function reviewLoop(io, context, cfg, ctx, job, save) {
     await fresh.button.click({ timeout: 10000 });
     const out = await awaitOutcome(page, now.frame, cfg, startUrl, io.print);
     if (job.docs?.dir) await page.screenshot({ path: path.join(job.docs.dir, `after-submit-${out.result}.png`), fullPage: true }).catch(() => {});
-    if (out.result === 'submitted') return { status: 'submitted', note: 'Confirmed by the site' };
+    if (out.result === 'submitted') {
+      io.print(`\n   The site confirmed it${out.said ? `: "${out.said}"` : ''}\n   at ${out.url}\n   A real application normally also brings a confirmation email from the company or its job-board system.`);
+      return { status: 'submitted', note: `Confirmed by the site at ${out.url}${out.said ? ` ("${out.said}")` : ''}` };
+    }
     if (out.result === 'duplicate') return { status: 'skipped', note: 'The site says you have already applied' };
     if (out.result === 'invalid') {
       save(before, `The site rejected the form: ${out.note}`);
@@ -214,6 +221,7 @@ async function runInteractive(cfg, profile, companies, { only, limit, io, base, 
         const opened = await openForm(page, job);
         if (opened.closed) { finish(job, 'closed', 'The posting is no longer open'); continue; }
         if (opened.duplicate) { finish(job, 'skipped', 'The site says you have already applied'); continue; }
+        io.print(`   Opened in the browser: ${page.url()}${opened.clickedApply ? "  (pressed the site's Apply button to show the form)" : ''}`);
         const company = companies.find((c) => c.key === job.companyKey);
         const text = norm(opened.sig?.body ?? '');
         if (!(company?.variants ?? [job.company]).some((v) => norm(v).length >= 3 && text.includes(norm(v)))) io.print(`   Warning: this page does not mention "${job.company}". Make sure it is the right company.`);
